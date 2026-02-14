@@ -413,7 +413,7 @@ const API_BASE_URL = 'http://localhost:8000/api';
 
 export const apiRequest = async (endpoint, options = {}) => {
   const apiKey = localStorage.getItem('api_key');
-  
+
   const config = {
     ...options,
     headers: {
@@ -447,9 +447,10 @@ export const register = async (userData) => {
       email: userData.email,
       password: userData.password,
       password_confirmation: userData.passwordConfirmation,
-      role: userData.role || 'client', // opcional
+      // Nota: El rol 'client' se asigna automáticamente en el backend
+      // Los roles de admin deben ser asignados manualmente por otro administrador
     });
-    
+
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -484,13 +485,13 @@ export const login = async (credentials) => {
       email: credentials.email,
       password: credentials.password,
     });
-    
+
     const { api_key, user } = response.data.data;
-    
+
     // Guardar en localStorage
     localStorage.setItem('api_key', api_key);
     localStorage.setItem('user', JSON.stringify(user));
-    
+
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -592,7 +593,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 export const getAllUsers = async (filters = {}) => {
   try {
     const params = new URLSearchParams();
-    
+
     if (filters.is_approved !== undefined) {
       params.append('is_approved', filters.is_approved);
     }
@@ -696,7 +697,7 @@ export const regenerateApiKey = async (userId) => {
 export const getProducts = async (filters = {}) => {
   try {
     const params = new URLSearchParams();
-    
+
     if (filters.search) params.append('search', filters.search);
     if (filters.min_price) params.append('min_price', filters.min_price);
     if (filters.max_price) params.append('max_price', filters.max_price);
@@ -931,8 +932,8 @@ const Login = () => {
       navigate(isAdmin ? '/admin' : '/dashboard');
 
     } catch (err) {
-      const errorMessage = err.response?.data?.errors?.email?.[0] 
-        || err.response?.data?.message 
+      const errorMessage = err.response?.data?.errors?.email?.[0]
+        || err.response?.data?.message
         || 'Error al iniciar sesión';
       setError(errorMessage);
     } finally {
@@ -943,9 +944,9 @@ const Login = () => {
   return (
     <div className="login-container">
       <h2>Iniciar Sesión</h2>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Email:</label>
@@ -997,12 +998,12 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const params = filter === 'pending' 
-        ? 'is_approved=false' 
-        : filter === 'approved' 
-        ? 'is_approved=true' 
+      const params = filter === 'pending'
+        ? 'is_approved=false'
+        : filter === 'approved'
+        ? 'is_approved=true'
         : '';
-      
+
       const response = await api.get(`/admin/users?${params}`);
       setUsers(response.data.data.users.data);
     } catch (error) {
@@ -1120,7 +1121,7 @@ const ProductForm = ({ onSuccess }) => {
       const response = await api.post('/products', formData);
       alert('Producto creado exitosamente');
       onSuccess?.(response.data.data.product);
-      
+
       // Limpiar formulario
       setFormData({ name: '', features: '', price: '' });
     } catch (error) {
@@ -1331,12 +1332,12 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
-    
+
     if (error.response?.status === 403) {
       // Sin permisos
       window.location.href = '/unauthorized';
     }
-    
+
     return Promise.reject(error);
   }
 );

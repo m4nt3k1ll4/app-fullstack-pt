@@ -31,9 +31,8 @@ class AuthService
             'api_key' => null,
         ]);
 
-        // Asignar rol (por defecto 'client' si no se especifica)
-        $roleName = $data['role'] ?? 'client';
-        $role = Role::where('name', $roleName)->first();
+        // Asignar rol 'client' por defecto (los admins se asignan manualmente en BD)
+        $role = Role::where('name', 'client')->first();
 
         if ($role) {
             $user->roles()->attach($role->id);

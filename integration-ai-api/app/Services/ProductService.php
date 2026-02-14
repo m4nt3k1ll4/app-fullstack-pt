@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Helpers\JsonHelper;
+use App\Helpers\QueryHelper;
 use App\Models\Products;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -18,23 +20,13 @@ class ProductService
     {
         $query = Products::query()->latest();
 
-        // Filtro por nombre
         if (!empty($filters['search'])) {
-            $query->where('name', 'like', '%' . $filters['search'] . '%');
+            QueryHelper::applySearch($query, $filters['search'], ['name']);
         }
 
-        // Filtro por rango de precio
-        if (!empty($filters['min_price'])) {
-            $query->where('price', '>=', $filters['min_price']);
-        }
+        QueryHelper::applyRange($query, $filters, 'price');
 
-        if (!empty($filters['max_price'])) {
-            $query->where('price', '<=', $filters['max_price']);
-        }
-
-        $perPage = $filters['per_page'] ?? 15;
-
-        return $query->paginate($perPage);
+        return QueryHelper::paginate($query, $filters);
     }
 
     /**
@@ -131,14 +123,10 @@ class ProductService
         ]);
 
         if ($result['success']) {
-            // Parsear la respuesta JSON
-            try {
-                $jsonResponse = json_decode($result['response'], true);
-                $product->ai_description = $jsonResponse['description'] ?? $result['response'];
-            } catch (\Exception $e) {
-                // Fallback: usar la respuesta directa si falla el parsing
-                $product->ai_description = $result['response'];
-            }
+            $product->ai_description = JsonHelper::extractOrFallback(
+                $result['response'],
+                'description'
+            );
             $product->save();
         }
 
@@ -153,9 +141,9 @@ class ProductService
      */
     public function search(string $term): Collection
     {
-        return Products::where('name', 'like', "%{$term}%")
-            ->orWhere('features', 'like', "%{$term}%")
-            ->orWhere('ai_description', 'like', "%{$term}%")
-            ->get();
+        $query = Products::query();
+        QueryHelper::applySearch($query, $term, ['name', 'features', 'ai_description']);
+
+        return $query->get();
     }
 }

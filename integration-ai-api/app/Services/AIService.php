@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\ServiceResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -59,20 +60,16 @@ class AIService
             // Extraer el texto de la respuesta de Gemini
             $responseText = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
-            return [
-                'success' => true,
+            return ServiceResponse::success('Prompt procesado', [
                 'response' => $responseText,
                 'usage' => $data['usageMetadata'] ?? [],
                 'model' => $model,
-            ];
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error en AIService: ' . $e->getMessage());
 
-            return [
-                'success' => false,
-                'error' => $e->getMessage(),
-            ];
+            return ServiceResponse::error($e->getMessage());
         }
     }
 

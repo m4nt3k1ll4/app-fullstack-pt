@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Helpers\ApiKeyHelper;
+use App\Helpers\QueryHelper;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,22 +24,15 @@ class AdminService
     {
         $query = User::query()->latest();
 
-        // Filtro por estado de aprobación
         if (isset($filters['is_approved'])) {
             $query->where('is_approved', filter_var($filters['is_approved'], FILTER_VALIDATE_BOOLEAN));
         }
 
-        // Filtro por búsqueda (nombre o email)
         if (!empty($filters['search'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('name', 'like', '%' . $filters['search'] . '%')
-                  ->orWhere('email', 'like', '%' . $filters['search'] . '%');
-            });
+            QueryHelper::applySearch($query, $filters['search'], ['name', 'email']);
         }
 
-        $perPage = $filters['per_page'] ?? 15;
-
-        return $query->paginate($perPage);
+        return QueryHelper::paginate($query, $filters);
     }
 
     /**
@@ -72,28 +67,13 @@ class AdminService
     public function approveUser(int $userId): array
     {
         $user = $this->findUser($userId);
+        $result = ApiKeyHelper::approveAndAssignKey($user, $this->apiKeyService);
 
-        if ($user->is_approved) {
-            return [
-                'user' => $user,
-                'api_key' => null,
-                'message' => 'El usuario ya estaba aprobado.',
-                'already_approved' => true,
-            ];
-        }
+        $result['message'] = $result['already_approved']
+            ? 'El usuario ya estaba aprobado.'
+            : 'Usuario aprobado exitosamente.';
 
-        // Aprobar usuario y generar API Key
-        $apiKey = $this->apiKeyService->generate();
-        $user->is_approved = true;
-        $user->api_key = $this->apiKeyService->hash($apiKey);
-        $user->save();
-
-        return [
-            'user' => $user,
-            'api_key' => $apiKey,
-            'message' => 'Usuario aprobado exitosamente.',
-            'already_approved' => false,
-        ];
+        return $result;
     }
 
     /**
@@ -127,9 +107,7 @@ class AdminService
             throw new \Exception('El usuario debe estar aprobado para regenerar su API Key.');
         }
 
-        $apiKey = $this->apiKeyService->generate();
-        $user->api_key = $this->apiKeyService->hash($apiKey);
-        $user->save();
+        $apiKey = ApiKeyHelper::assignNewKey($user, $this->apiKeyService);
 
         return [
             'user' => $user,

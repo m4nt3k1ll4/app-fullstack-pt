@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\ApiKeyHelper;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -70,17 +71,8 @@ class AuthService
             ]);
         }
 
-        // Generar nueva API Key si no tiene una
-        if (!$user->api_key) {
-            $apiKey = $this->apiKeyService->generate();
-            $user->api_key = $this->apiKeyService->hash($apiKey);
-            $user->save();
-        } else {
-            // Si ya tiene una, regenerar una nueva
-            $apiKey = $this->apiKeyService->generate();
-            $user->api_key = $this->apiKeyService->hash($apiKey);
-            $user->save();
-        }
+        // Generar nueva API Key (siempre se regenera al hacer login)
+        $apiKey = ApiKeyHelper::assignNewKey($user, $this->apiKeyService);
 
         return [
             'user' => $user->only(['id', 'name', 'email']),
@@ -90,7 +82,8 @@ class AuthService
     }
 
     /**
-     * Aprueba un usuario y genera su API Key
+     * Aprueba un usuario y genera su API Key.
+     * Delega la lógica compartida a ApiKeyHelper.
      *
      * @param int $userId
      * @return array
@@ -98,24 +91,14 @@ class AuthService
     public function approveUser(int $userId): array
     {
         $user = User::findOrFail($userId);
-
-        if ($user->is_approved) {
-            return [
-                'user' => $user,
-                'message' => 'El usuario ya estaba aprobado.',
-            ];
-        }
-
-        // Aprobar usuario y generar API Key
-        $apiKey = $this->apiKeyService->generate();
-        $user->is_approved = true;
-        $user->api_key = $this->apiKeyService->hash($apiKey);
-        $user->save();
+        $result = ApiKeyHelper::approveAndAssignKey($user, $this->apiKeyService);
 
         return [
-            'user' => $user->only(['id', 'name', 'email', 'is_approved']),
-            'api_key' => $apiKey,
-            'message' => 'Usuario aprobado exitosamente.',
+            'user' => $result['user']->only(['id', 'name', 'email', 'is_approved']),
+            'api_key' => $result['api_key'],
+            'message' => $result['already_approved']
+                ? 'El usuario ya estaba aprobado.'
+                : 'Usuario aprobado exitosamente.',
         ];
     }
 

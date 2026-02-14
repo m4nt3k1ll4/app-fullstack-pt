@@ -16,7 +16,7 @@ class AuthController extends Controller
 
     /**
      * Registra un nuevo usuario
-     * 
+     *
      * @param RegisterRequest $request
      * @return JsonResponse
      */
@@ -44,7 +44,7 @@ class AuthController extends Controller
 
     /**
      * Inicia sesión y genera API Key
-     * 
+     *
      * @param LoginRequest $request
      * @return JsonResponse
      */
@@ -80,7 +80,7 @@ class AuthController extends Controller
 
     /**
      * Aprueba un usuario (solo admin)
-     * 
+     *
      * @param int $userId
      * @return JsonResponse
      */

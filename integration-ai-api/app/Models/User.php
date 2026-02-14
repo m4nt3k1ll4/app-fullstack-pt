@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -21,7 +22,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'is_approved',
         'api_key',
     ];
@@ -52,22 +52,59 @@ class User extends Authenticatable
     }
 
     /**
+     * Los roles del usuario
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    /**
      * Verifica si el usuario es administrador
-     * 
+     *
      * @return bool
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->roles()->where('name', 'admin')->exists();
     }
 
     /**
      * Verifica si el usuario es cliente
-     * 
+     *
      * @return bool
      */
     public function isClient(): bool
     {
-        return $this->role === 'client';
+        return $this->roles()->where('name', 'client')->exists();
+    }
+
+    /**
+     * Verifica si el usuario tiene un rol específico
+     *
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * Asigna un rol al usuario
+     *
+     * @param string|int $role
+     * @return void
+     */
+    public function assignRole(string|int $role): void
+    {
+        if (is_string($role)) {
+            $roleModel = Role::where('name', $role)->first();
+            if ($roleModel) {
+                $this->roles()->syncWithoutDetaching([$roleModel->id]);
+            }
+        } else {
+            $this->roles()->syncWithoutDetaching([$role]);
+        }
     }
 }

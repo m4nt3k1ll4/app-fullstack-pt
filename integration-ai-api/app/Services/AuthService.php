@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class AuthService
 
     /**
      * Registra un nuevo usuario
-     * 
+     *
      * @param array $data
      * @return array
      */
@@ -26,10 +27,17 @@ class AuthService
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'client', // Por defecto 'client'
             'is_approved' => false,
             'api_key' => null,
         ]);
+
+        // Asignar rol (por defecto 'client' si no se especifica)
+        $roleName = $data['role'] ?? 'client';
+        $role = Role::where('name', $roleName)->first();
+
+        if ($role) {
+            $user->roles()->attach($role->id);
+        }
 
         return [
             'user' => $user,
@@ -39,7 +47,7 @@ class AuthService
 
     /**
      * Autentica un usuario y genera API Key
-     * 
+     *
      * @param array $credentials
      * @return array
      * @throws ValidationException
@@ -84,7 +92,7 @@ class AuthService
 
     /**
      * Aprueba un usuario y genera su API Key
-     * 
+     *
      * @param int $userId
      * @return array
      */
@@ -114,7 +122,7 @@ class AuthService
 
     /**
      * Valida una API Key y retorna el usuario
-     * 
+     *
      * @param string $apiKey
      * @return User|null
      */

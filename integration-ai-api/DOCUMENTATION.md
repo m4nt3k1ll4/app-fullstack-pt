@@ -21,8 +21,10 @@
 
 ### 🔐 Sistema de Autenticación
 - Registro de usuarios con aprobación manual
-- Login con generación de API Key segura (Base64, SHA-256)
-- Middleware de validación de API Key
+- Login de clientes con generación de API Key segura (Base64, SHA-256)
+- Login de administradores con tokens Sanctum (expiración de 5 minutos)
+- Middleware de validación de API Key (clientes)
+- Middleware `auth:sanctum` (administradores)
 - Sistema de roles: Admin y Client
 
 ### 👨‍💼 Panel Administrativo
@@ -47,7 +49,8 @@
 ### 🛠️ Stack Tecnológico
 - **Backend**: Laravel 12
 - **Base de Datos**: PostgreSQL
-- **Autenticación**: API Keys (Base64 + SHA-256)
+- **Autenticación Clientes**: API Keys (Base64 + SHA-256)
+- **Autenticación Admin**: Laravel Sanctum (tokens con expiración de 5 min)
 - **IA**: Google Gemini API
 - **Arquitectura**: Clean Architecture (Controllers → Services → Models)
 
@@ -145,7 +148,7 @@ integration-ai-api/
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── AuthController.php       # Autenticación (registro, login)
-│   │   │   ├── AdminController.php      # Panel administrativo
+│   │   │   ├── AdminController.php      # Panel administrativo (login/logout + gestión)
 │   │   │   ├── ProductsController.php   # CRUD de productos
 │   │   │   └── AIController.php         # Integración con IA
 │   │   ├── Middleware/
@@ -294,10 +297,9 @@ $user->assignRole('client');
 
 ```php
 // En routes/api.php
-Route::middleware(['api.key', 'is.admin'])->group(function () {
-    Route::prefix('admin')->group(function () {
-        // Rutas solo para administradores
-    });
+// Admin routes usan Sanctum en lugar de API Key
+Route::prefix('admin')->middleware(['auth:sanctum', 'is.admin'])->group(function () {
+    // Rutas solo para administradores
 });
 ```
 
@@ -849,9 +851,28 @@ if (!$user->isAdmin()) {
 }
 ```
 
+### Autenticación Admin con Sanctum
+
+**Tokens con Expiración:**
+- Los administradores usan tokens Sanctum en lugar de API Keys
+- Los tokens expiran en **5 minutos** (configurable en `config/sanctum.php`)
+- Se obtienen mediante `POST /api/admin/login`
+- Se revocan con `POST /api/admin/logout`
+
+```php
+// Generar token en AuthService::adminLogin()
+$token = $user->createToken('admin-session', ['admin']);
+return $token->plainTextToken; // "1|abc123..."
+
+// Usar en peticiones admin:
+// Authorization: Bearer 1|abc123...
+```
+
 ### Flujo de Autenticación Completo
 
 ```
+=== FLUJO DE CLIENTES (API Key) ===
+
 1. Usuario se registra
    POST /api/auth/register
    → Usuario creado con is_approved = false
@@ -881,14 +902,29 @@ if (!$user->isAdmin()) {
    → Verifica is_approved = true
    → Inyecta usuario en request
    → Controller procesa la petición
+
+=== FLUJO DE ADMINISTRADORES (Token Sanctum) ===
+
+5. Admin hace login
+   POST /api/admin/login
+   → Valida credenciales
+   → Verifica que tiene rol 'admin'
+   → Revoca tokens anteriores
+   → Genera token Sanctum (expira en 5 min)
+   → Retorna token: "1|abc123..."
    ↓
 
-5. Si intenta acceder a ruta admin
-   GET /api/admin/users
-   → Middleware ValidateApiKey (paso 4)
+6. Admin accede a rutas protegidas
+   GET /api/admin/users (Authorization: Bearer 1|abc123...)
+   → Middleware auth:sanctum valida el token
+   → Verifica que no haya expirado
    → Middleware IsAdmin verifica $user->isAdmin()
-   → Si no es admin: responde 403
-   → Si es admin: continúa la petición
+   → Controller procesa la petición
+   ↓
+
+7. Admin cierra sesión
+   POST /api/admin/logout
+   → Revoca el token actual
 ```
 
 ---

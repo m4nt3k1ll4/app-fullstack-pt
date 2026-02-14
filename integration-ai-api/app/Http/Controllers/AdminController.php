@@ -3,14 +3,85 @@
 namespace App\Http\Controllers;
 
 use App\Services\AdminService;
+use App\Services\AuthService;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
     public function __construct(
-        protected AdminService $adminService
+        protected AdminService $adminService,
+        protected AuthService $authService,
     ) {}
+
+    /**
+     * Inicia sesión como administrador y genera un token Sanctum
+     *
+     * POST /api/admin/login
+     *
+     * @param LoginRequest $request
+     * @return JsonResponse
+     */
+    public function login(LoginRequest $request): JsonResponse
+    {
+        try {
+            $result = $this->authService->adminLogin($request->validated());
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'data' => [
+                    'user' => $result['user'],
+                    'token' => $result['token'],
+                    'token_type' => 'Bearer',
+                    'expires_in' => $result['expires_in'] . ' minutos',
+                ],
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de autenticación.',
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al iniciar sesión de administrador.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Cierra la sesión del administrador (revoca el token actual)
+     *
+     * POST /api/admin/logout
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        try {
+            $result = $this->authService->adminLogout($request->user());
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cerrar sesión.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     /**
      * Lista todos los usuarios con filtros opcionales

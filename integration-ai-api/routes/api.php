@@ -11,14 +11,17 @@ use App\Http\Controllers\AdminController;
 // Rutas Públicas (No requieren autenticación)
 // ============================================
 
-// Autenticación
+// Autenticación de clientes
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+// Login de administrador (público, devuelve token Sanctum)
+Route::post('/admin/login', [AdminController::class, 'login']);
+
 // ============================================
-// Rutas Protegidas por API Key
+// Rutas Protegidas por API Key (Clientes)
 // ============================================
 
 Route::middleware('api.key')->group(function () {
@@ -43,31 +46,36 @@ Route::middleware('api.key')->group(function () {
         Route::delete('/{id}', [ProductsController::class, 'destroy']);
         Route::post('/{id}/generate-description', [ProductsController::class, 'generateDescription']);
     });
+});
 
-    // ============================================
-    // Endpoints Administrativos (Solo Administradores)
-    // ============================================
-    Route::middleware('is.admin')->prefix('admin')->group(function () {
+// ============================================
+// Rutas Administrativas (Token Sanctum + rol admin)
+// Requieren: Authorization: Bearer {token}
+// Token expira en 5 minutos
+// ============================================
 
-        // Estadísticas
-        Route::get('/statistics', [AdminController::class, 'statistics']);
+Route::prefix('admin')->middleware(['auth:sanctum', 'is.admin'])->group(function () {
 
-        // Gestión de Usuarios
-        Route::prefix('users')->group(function () {
-            Route::get('/', [AdminController::class, 'index']);
-            Route::get('/pending', [AdminController::class, 'pending']);
-            Route::get('/{id}', [AdminController::class, 'show']);
-            Route::put('/{id}', [AdminController::class, 'update']);
-            Route::patch('/{id}', [AdminController::class, 'update']);
-            Route::delete('/{id}', [AdminController::class, 'destroy']);
+    // Cerrar sesión (revocar token)
+    Route::post('/logout', [AdminController::class, 'logout']);
 
-            // Acciones específicas
-            Route::post('/{id}/approve', [AdminController::class, 'approve']);
-            Route::post('/{id}/revoke', [AdminController::class, 'revoke']);
-            Route::post('/{id}/regenerate-key', [AdminController::class, 'regenerateKey']);
-        });
+    // Estadísticas
+    Route::get('/statistics', [AdminController::class, 'statistics']);
+
+    // Gestión de Usuarios
+    Route::prefix('users')->group(function () {
+        Route::get('/', [AdminController::class, 'index']);
+        Route::get('/pending', [AdminController::class, 'pending']);
+        Route::get('/{id}', [AdminController::class, 'show']);
+        Route::put('/{id}', [AdminController::class, 'update']);
+        Route::patch('/{id}', [AdminController::class, 'update']);
+        Route::delete('/{id}', [AdminController::class, 'destroy']);
+
+        // Acciones específicas
+        Route::post('/{id}/approve', [AdminController::class, 'approve']);
+        Route::post('/{id}/revoke', [AdminController::class, 'revoke']);
+        Route::post('/{id}/regenerate-key', [AdminController::class, 'regenerateKey']);
     });
-
 });
 
 

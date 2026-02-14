@@ -103,6 +103,59 @@ class AuthService
     }
 
     /**
+     * Autentica un administrador y genera un token Sanctum con expiración.
+     *
+     * @param array $credentials
+     * @return array
+     * @throws ValidationException
+     */
+    public function adminLogin(array $credentials): array
+    {
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Las credenciales proporcionadas son incorrectas.'],
+            ]);
+        }
+
+        if (!$user->isAdmin()) {
+            throw ValidationException::withMessages([
+                'email' => ['No tiene permisos de administrador.'],
+            ]);
+        }
+
+        // Revocar tokens anteriores para mantener una sola sesión activa
+        $user->tokens()->delete();
+
+        // Crear token Sanctum con habilidades de admin
+        $token = $user->createToken('admin-session', ['admin']);
+
+        return [
+            'user' => $user->only(['id', 'name', 'email']),
+            'token' => $token->plainTextToken,
+            'expires_in' => (int) config('sanctum.expiration', 5),
+            'message' => 'Sesión de administrador iniciada exitosamente.',
+        ];
+    }
+
+    /**
+     * Cierra la sesión del administrador revocando el token actual.
+     *
+     * @param User $user
+     * @return array
+     */
+    public function adminLogout(User $user): array
+    {
+        // Revocar solo el token actual
+        $user->currentAccessToken()->delete();
+
+        return [
+            'message' => 'Sesión de administrador cerrada exitosamente.',
+        ];
+    }
+
+    /**
      * Valida una API Key y retorna el usuario
      *
      * @param string $apiKey

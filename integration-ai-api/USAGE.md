@@ -552,17 +552,82 @@ Content-Type: application/json
 
 ## 👨‍💼 Administración
 
-**Nota:** Todos estos endpoints requieren que el usuario tenga rol de **administrador**.
+**Nota:** Los endpoints administrativos usan **tokens Sanctum** (no API Keys). Los tokens expiran en **5 minutos**. Primero inicie sesión con `/api/admin/login` para obtener un token Bearer.
+
+### Login de Administrador
+
+**Verbo:** `POST`  
+**Ruta:** `/api/admin/login`  
+**Requiere Autenticación:** ❌ No
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "email": "admin@example.com",
+  "password": "password123"
+}
+```
+
+**Respuesta exitosa (200):**
+```json
+{
+  "success": true,
+  "message": "Sesión de administrador iniciada exitosamente.",
+  "data": {
+    "user": {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@example.com"
+    },
+    "token": "1|abc123tokenlargoaqui...",
+    "token_type": "Bearer",
+    "expires_in": "5 minutos"
+  }
+}
+```
+
+**Errores posibles:**
+- `422` — Credenciales incorrectas o usuario no es administrador
+
+---
+
+### Logout de Administrador
+
+**Verbo:** `POST`  
+**Ruta:** `/api/admin/logout`  
+**Requiere Token Sanctum:** ✅ Sí (Admin)
+
+**Headers:**
+```
+Authorization: Bearer {tu_token_sanctum}
+```
+
+**Body:** ❌ No requiere body
+
+**Respuesta exitosa (200):**
+```json
+{
+  "success": true,
+  "message": "Sesión de administrador cerrada exitosamente."
+}
+```
+
+---
 
 ### Obtener Estadísticas
 
 **Verbo:** `GET`  
 **Ruta:** `/api/admin/statistics`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Body:** ❌ No requiere body
@@ -591,11 +656,11 @@ Authorization: Bearer {tu_api_key}
 
 **Verbo:** `GET`  
 **Ruta:** `/api/admin/users`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Query Parameters (opcionales):**
@@ -634,11 +699,11 @@ Authorization: Bearer {tu_api_key}
 
 **Verbo:** `GET`  
 **Ruta:** `/api/admin/users/pending`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Body:** ❌ No requiere body
@@ -667,11 +732,11 @@ Authorization: Bearer {tu_api_key}
 
 **Verbo:** `GET`  
 **Ruta:** `/api/admin/users/{id}`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Body:** ❌ No requiere body
@@ -700,11 +765,11 @@ Authorization: Bearer {tu_api_key}
 
 **Verbo:** `PUT` o `PATCH`  
 **Ruta:** `/api/admin/users/{id}`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 Content-Type: application/json
 ```
 
@@ -743,11 +808,11 @@ Content-Type: application/json
 
 **Verbo:** `DELETE`  
 **Ruta:** `/api/admin/users/{id}`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Body:** ❌ No requiere body
@@ -767,11 +832,11 @@ Authorization: Bearer {tu_api_key}
 
 **Verbo:** `POST`  
 **Ruta:** `/api/admin/users/{id}/approve`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Body:** ❌ No requiere body
@@ -797,11 +862,11 @@ Authorization: Bearer {tu_api_key}
 
 **Verbo:** `POST`  
 **Ruta:** `/api/admin/users/{id}/revoke`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Body:** ❌ No requiere body
@@ -827,11 +892,11 @@ Authorization: Bearer {tu_api_key}
 
 **Verbo:** `POST`  
 **Ruta:** `/api/admin/users/{id}/regenerate-key`  
-**Requiere API Key:** ✅ Sí (Admin)
+**Requiere Token Sanctum:** ✅ Sí (Admin)
 
 **Headers:**
 ```
-Authorization: Bearer {tu_api_key}
+Authorization: Bearer {tu_token_sanctum}
 ```
 
 **Body:** ❌ No requiere body
@@ -856,19 +921,26 @@ Authorization: Bearer {tu_api_key}
 
 ## 📝 Notas Importantes
 
-### Headers Requeridos
+### Autenticación Dual
 
-Para todas las rutas protegidas, debes incluir uno de estos headers:
+La API usa **dos sistemas de autenticación** independientes:
 
-```http
-Authorization: Bearer {tu_api_key}
-```
+| Sistema | Uso | Expiración | Header |
+|---------|-----|------------|--------|
+| **API Key** | Clientes (productos, IA, perfil) | Sin expiración | `Authorization: Bearer {api_key}` o `X-API-Key: {api_key}` |
+| **Token Sanctum** | Administradores (gestión de usuarios) | **5 minutos** | `Authorization: Bearer {token}` |
 
-O bien:
+#### Flujo de Clientes
+1. `POST /api/auth/register` → Registro (pendiente aprobación)
+2. Admin aprueba el usuario
+3. `POST /api/auth/login` → Obtiene API Key
+4. Usa API Key en todos los endpoints de productos e IA
 
-```http
-X-API-Key: {tu_api_key}
-```
+#### Flujo de Administradores
+1. `POST /api/admin/login` → Obtiene token Sanctum (expira en 5 min)
+2. Usa token en todos los endpoints de `/api/admin/*`
+3. Si el token expira, hacer login de nuevo
+4. `POST /api/admin/logout` → Revoca el token manualmente
 
 ### Content-Type
 
@@ -924,7 +996,9 @@ https://tudominio.com/api/auth/register
 
 ## 🚀 Ejemplo Completo de Flujo
 
-### 1. Registrar un usuario
+### Flujo de Cliente
+
+#### 1. Registrar un usuario
 
 ```bash
 curl -X POST http://localhost:8000/api/auth/register \
@@ -940,7 +1014,7 @@ curl -X POST http://localhost:8000/api/auth/register \
 # Los administradores deben asignarse manualmente en la base de datos
 ```
 
-### 2. Iniciar sesión y obtener API Key
+#### 2. Iniciar sesión y obtener API Key
 
 ```bash
 curl -X POST http://localhost:8000/api/auth/login \
@@ -951,14 +1025,14 @@ curl -X POST http://localhost:8000/api/auth/login \
   }'
 ```
 
-### 3. Usar la API Key para acceder a rutas protegidas
+#### 3. Usar la API Key para acceder a rutas protegidas
 
 ```bash
 curl -X GET http://localhost:8000/api/products \
   -H "Authorization: Bearer tu_api_key_aqui"
 ```
 
-### 4. Crear un producto
+#### 4. Crear un producto
 
 ```bash
 curl -X POST http://localhost:8000/api/products \
@@ -969,6 +1043,43 @@ curl -X POST http://localhost:8000/api/products \
     "features": "Características increíbles",
     "price": 99.99
   }'
+```
+
+### Flujo de Administrador
+
+#### 1. Login admin (obtener token Sanctum)
+
+```bash
+curl -X POST http://localhost:8000/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "password123"
+  }'
+
+# Respuesta contiene: "token": "1|abc123..."
+# Este token expira en 5 minutos
+```
+
+#### 2. Usar el token para gestionar usuarios
+
+```bash
+curl -X GET http://localhost:8000/api/admin/users/pending \
+  -H "Authorization: Bearer 1|abc123tokenaqui"
+```
+
+#### 3. Aprobar un usuario
+
+```bash
+curl -X POST http://localhost:8000/api/admin/users/25/approve \
+  -H "Authorization: Bearer 1|abc123tokenaqui"
+```
+
+#### 4. Cerrar sesión admin
+
+```bash
+curl -X POST http://localhost:8000/api/admin/logout \
+  -H "Authorization: Bearer 1|abc123tokenaqui"
 ```
 
 ---

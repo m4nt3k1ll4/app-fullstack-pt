@@ -23,6 +23,7 @@ class RegisterRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'sometimes|in:admin,client',
         ];
     }
 
@@ -40,6 +41,7 @@ class RegisterRequest extends FormRequest
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
+            'role.in' => 'El rol debe ser admin o client.',
         ];
     }
 }

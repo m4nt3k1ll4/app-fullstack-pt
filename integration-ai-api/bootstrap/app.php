@@ -12,9 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Registrar middleware de API Key
+        // Registrar middlewares personalizados
         $middleware->alias([
             'api.key' => \App\Http\Middleware\ValidateApiKey::class,
+            'is.admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
         'is_approved',
         'api_key',
     ];
@@ -48,5 +49,25 @@ class User extends Authenticatable
             'is_approved' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Verifica si el usuario es administrador
+     * 
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Verifica si el usuario es cliente
+     * 
+     * @return bool
+     */
+    public function isClient(): bool
+    {
+        return $this->role === 'client';
     }
 }

@@ -45,10 +45,9 @@ Route::middleware('api.key')->group(function () {
     });
 
     // ============================================
-    // Endpoints Administrativos (Gestión de Usuarios)
-    // TODO: Agregar middleware 'is.admin' cuando sea necesario
+    // Endpoints Administrativos (Solo Administradores)
     // ============================================
-    Route::prefix('admin')->group(function () {
+    Route::middleware('is.admin')->prefix('admin')->group(function () {
 
         // Estadísticas
         Route::get('/statistics', [AdminController::class, 'statistics']);

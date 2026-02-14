@@ -26,6 +26,7 @@ class AuthService
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role' => $data['role'] ?? 'client', // Por defecto 'client'
             'is_approved' => false,
             'api_key' => null,
         ]);

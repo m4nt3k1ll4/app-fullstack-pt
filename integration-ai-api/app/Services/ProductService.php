@@ -124,7 +124,7 @@ class ProductService
 
         // Procesar con IA
         $result = $aiService->processPrompt($prompt, [
-            'model' => 'gemini-pro',
+            'model' => 'gemini-1.5-pro',
             'max_tokens' => 300,
             'temperature' => 0.7,
         ]);

@@ -1,0 +1,115 @@
+# ============================================
+# MONOREPO GITIGNORE
+# Laravel Backend + Next.js Frontend
+# ============================================
+
+# ============================================
+# Node.js / NPM
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# Next.js (Frontend)
+# ============================================
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+.vercel
+.turbo
+
+# ============================================
+# Laravel / PHP (Backend)
+# ============================================
+/vendor
+/integration-ai-api/vendor
+composer.lock
+.phpactor.json
+.phpunit.result.cache
+/.phpunit.cache
+/auth.json
+Homestead.json
+Homestead.yaml
+
+# Laravel específico
+/integration-ai-api/public/build
+/integration-ai-api/public/hot
+/integration-ai-api/public/storage
+/integration-ai-api/storage/*.key
+/integration-ai-api/storage/pail
+/integration-ai-api/bootstrap/cache/*.php
+!/integration-ai-api/bootstrap/cache/.gitkeep
+
+# ============================================
+# Variables de entorno
+# ============================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.backup
+.env.production
+
+# ============================================
+# Logs
+# ============================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/integration-ai-api/storage/logs/*.log
+
+# ============================================
+# IDEs y Editores
+# ============================================
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ============================================
+# Sistema Operativo
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# Testing
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# Temporal y Cache
+# ============================================
+*.tmp
+*.temp
+.cache/
+.parcel-cache/

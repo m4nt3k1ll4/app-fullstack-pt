@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\AdminController;
 
 // ============================================
 // Rutas Públicas (No requieren autenticación)
@@ -13,9 +15,6 @@ use App\Http\Controllers\AIController;
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-
-    // Ruta de aprobación (deberías protegerla con un middleware de admin)
-    Route::post('/approve/{userId}', [AuthController::class, 'approve']);
 });
 
 // ============================================
@@ -33,5 +32,44 @@ Route::middleware('api.key')->group(function () {
         Route::post('/batch', [AIController::class, 'processBatch']);
     });
 
+    // Endpoints de Productos (CRUD completo)
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductsController::class, 'index']);
+        Route::post('/', [ProductsController::class, 'store']);
+        Route::get('/search/{term}', [ProductsController::class, 'search']);
+        Route::get('/{id}', [ProductsController::class, 'show']);
+        Route::put('/{id}', [ProductsController::class, 'update']);
+        Route::patch('/{id}', [ProductsController::class, 'update']);
+        Route::delete('/{id}', [ProductsController::class, 'destroy']);
+        Route::post('/{id}/generate-description', [ProductsController::class, 'generateDescription']);
+    });
+
+    // ============================================
+    // Endpoints Administrativos (Gestión de Usuarios)
+    // TODO: Agregar middleware 'is.admin' cuando sea necesario
+    // ============================================
+    Route::prefix('admin')->group(function () {
+
+        // Estadísticas
+        Route::get('/statistics', [AdminController::class, 'statistics']);
+
+        // Gestión de Usuarios
+        Route::prefix('users')->group(function () {
+            Route::get('/', [AdminController::class, 'index']);
+            Route::get('/pending', [AdminController::class, 'pending']);
+            Route::get('/{id}', [AdminController::class, 'show']);
+            Route::put('/{id}', [AdminController::class, 'update']);
+            Route::patch('/{id}', [AdminController::class, 'update']);
+            Route::delete('/{id}', [AdminController::class, 'destroy']);
+
+            // Acciones específicas
+            Route::post('/{id}/approve', [AdminController::class, 'approve']);
+            Route::post('/{id}/revoke', [AdminController::class, 'revoke']);
+            Route::post('/{id}/regenerate-key', [AdminController::class, 'regenerateKey']);
+        });
+    });
+
 });
+
+
 

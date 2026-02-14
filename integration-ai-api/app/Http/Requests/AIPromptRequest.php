@@ -21,9 +21,9 @@ class AIPromptRequest extends FormRequest
     {
         return [
             'prompt' => 'required|string|max:4000',
-            'model' => 'nullable|string|in:gpt-3.5-turbo,gpt-4,gpt-4-turbo',
-            'max_tokens' => 'nullable|integer|min:1|max:4000',
-            'temperature' => 'nullable|numeric|min:0|max:2',
+            'model' => 'nullable|string|in:gemini-pro,gemini-pro-vision',
+            'max_tokens' => 'nullable|integer|min:1|max:8000',
+            'temperature' => 'nullable|numeric|min:0|max:1',
         ];
     }
 
@@ -35,11 +35,11 @@ class AIPromptRequest extends FormRequest
         return [
             'prompt.required' => 'El prompt es obligatorio.',
             'prompt.max' => 'El prompt no puede exceder 4000 caracteres.',
-            'model.in' => 'El modelo seleccionado no es válido.',
+            'model.in' => 'El modelo debe ser gemini-pro o gemini-pro-vision.',
             'max_tokens.min' => 'El valor de max_tokens debe ser al menos 1.',
-            'max_tokens.max' => 'El valor de max_tokens no puede exceder 4000.',
+            'max_tokens.max' => 'El valor de max_tokens no puede exceder 8000.',
             'temperature.min' => 'La temperatura debe ser al menos 0.',
-            'temperature.max' => 'La temperatura no puede exceder 2.',
+            'temperature.max' => 'La temperatura no puede exceder 1.',
         ];
     }
 }

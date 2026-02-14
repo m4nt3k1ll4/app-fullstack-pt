@@ -1,59 +1,277 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚀 API de Integración - Laravel Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST construida con Laravel 11 que proporciona:
+- ✅ Sistema de autenticación con API Keys seguras
+- ✅ Sistema de roles (Admin y Client)
+- ✅ Panel administrativo para gestión de usuarios
+- ✅ CRUD completo de productos
+- ✅ Integración con servicios de IA (Gemini)
+- ✅ Arquitectura limpia (Controllers → Services → Models)
+- ✅ Base de datos PostgreSQL
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📚 Documentación Completa
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**👉 [DOCUMENTATION.md](DOCUMENTATION.md) - Documentación completa consolidada**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Incluye:
+- Instalación paso a paso
+- Arquitectura del proyecto
+- Sistema de roles y permisos
+- Todos los endpoints de la API
+- Guía de integración frontend (React, Axios, Fetch)
+- Ejemplos de código completos
+- Autenticación y seguridad
+- Testing y verificación
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## ⚡ Quick Start
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Requisitos Previos
 
-## Laravel Sponsors
+- PHP 8.2+
+- Composer
+- PostgreSQL 14+
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Instalar dependencias
 
-### Premium Partners
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 2. Configurar base de datos en `.env`
 
-## Contributing
+**PostgreSQL debe estar ejecutándose.**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=tu_base_de_datos
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+```
 
-## Code of Conduct
+### 3. Configurar Gemini (opcional)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Obtén tu API Key desde [Google AI Studio](https://makersuite.google.com/app/apikey)
 
-## Security Vulnerabilities
+```env
+GEMINI_API_KEY=your-api-key-here
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Ejecutar migraciones y seeders
 
-## License
+```bash
+php artisan migrate
+php artisan db:seed --class=RoleSeeder
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 5. Crear usuario administrador
+
+```bash
+php artisan tinker
+
+$admin = User::create([
+    'name' => 'Admin',
+    'email' => 'admin@example.com',
+    'password' => Hash::make('admin123'),
+    'is_approved' => true
+]);
+$admin->assignRole('admin');
+```
+
+### 6. Iniciar servidor
+
+```bash
+php artisan serve
+```
+
+**API disponible en:** `http://localhost:8000/api`
+
+---
+
+## 🏗️ Arquitectura
+
+```
+Controllers → Services → Models
+```
+
+- **Controllers**: Reciben peticiones, delegan a Services
+- **Services**: Contienen toda la lógica de negocio
+- **Models**: Interacción con base de datos
+- **Form Requests**: Validación centralizada
+- **Middleware**: Autenticación y autorización
+
+---
+
+## 📡 Endpoints Principales
+
+### 🔓 Públicos
+- `POST /api/auth/register` - Registrar usuario
+- `POST /api/auth/login` - Login y obtener API Key
+
+### 🔒 Protegidos (requieren API Key)
+
+**Panel Administrativo (Solo Admin):**
+- `GET /api/admin/users` - Listar usuarios
+- `GET /api/admin/users/pending` - Pendientes de aprobación
+- `POST /api/admin/users/{id}/approve` - Aprobar usuario
+- `POST /api/admin/users/{id}/regenerate-key` - Regenerar API Key
+- `GET /api/admin/statistics` - Estadísticas
+
+**Productos:**
+- `GET /api/products` - Listar productos
+- `POST /api/products` - Crear producto
+- `PUT /api/products/{id}` - Actualizar producto
+- `DELETE /api/products/{id}` - Eliminar producto
+
+**IA:**
+- `POST /api/ai/prompt` - Procesar prompt
+- `POST /api/ai/batch` - Procesar múltiples prompts
+
+👉 **Ver documentación completa en [DOCUMENTATION.md](DOCUMENTATION.md)**
+
+---
+
+## 🔐 Autenticación
+
+Todos los endpoints protegidos requieren:
+
+```
+Authorization: Bearer {API_KEY}
+```
+
+**Flujo:**
+1. Usuario se registra → `POST /api/auth/register`
+2. Admin aprueba → `POST /api/admin/users/{id}/approve`
+3. Usuario hace login → `POST /api/auth/login` (obtiene API Key)
+4. Usa API Key en todas las peticiones protegidas
+
+---
+
+## 🎯 Sistema de Roles
+
+- **Admin**: Acceso completo (gestión de usuarios, productos, IA)
+- **Client**: Acceso a productos e IA (sin panel administrativo)
+
+```php
+// Verificar roles
+$user->isAdmin();   // bool
+$user->isClient();  // bool
+$user->hasRole('admin'); // bool
+```
+
+---
+
+## 🧪 Testing Rápido con cURL
+
+```bash
+# Registro
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test","email":"test@example.com","password":"password123","password_confirmation":"password123"}'
+
+# Login
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}'
+
+# Listar productos (con API Key)
+curl -X GET http://localhost:8000/api/products \
+  -H "Authorization: Bearer sk_YOUR_API_KEY"
+```
+
+---
+
+## 📦 Estructura del Proyecto
+
+```
+app/
+├── Http/
+│   ├── Controllers/        # AuthController, AdminController, ProductsController, AIController
+│   ├── Middleware/         # ValidateApiKey, IsAdmin
+│   └── Requests/           # RegisterRequest, LoginRequest, etc.
+├── Models/                 # User, Role, Products
+└── Services/               # AuthService, AdminService, ProductService, AIService
+
+database/
+├── migrations/             # Tablas users, roles, role_user, products
+└── seeders/                # RoleSeeder
+
+routes/
+└── api.php                 # Todas las rutas de la API
+```
+
+---
+
+## 💡 Ejemplos de Uso
+
+### JavaScript/React
+
+```javascript
+// Login y guardar API Key
+const response = await fetch('http://localhost:8000/api/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password })
+});
+
+const { api_key, user } = await response.json().data;
+localStorage.setItem('api_key', api_key);
+localStorage.setItem('user', JSON.stringify(user));
+
+// Usar en peticiones
+const products = await fetch('http://localhost:8000/api/products', {
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem('api_key')}`
+  }
+});
+```
+
+👉 **Más ejemplos en [DOCUMENTATION.md](DOCUMENTATION.md)**
+
+---
+
+## 🛠️ Comandos Útiles
+
+```bash
+# Migraciones
+php artisan migrate
+php artisan migrate:fresh --seed
+
+# Crear roles
+php artisan db:seed --class=RoleSeeder
+
+# Tinker (consola interactiva)
+php artisan tinker
+
+# Ver rutas
+php artisan route:list
+
+# Limpiar caché
+php artisan cache:clear
+php artisan config:clear
+```
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia MIT.
+
+---
+
+## 🔗 Enlaces Útiles
+
+- **[Documentación Completa](DOCUMENTATION.md)** - Guía detallada de todo el proyecto
+- [Laravel 11 Docs](https://laravel.com/docs/11.x)
+- [Google Gemini API Docs](https://ai.google.dev/docs)
+
+---
+
+**¡Happy coding! 🚀**

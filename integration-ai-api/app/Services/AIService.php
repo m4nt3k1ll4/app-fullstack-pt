@@ -9,7 +9,7 @@ class AIService
 {
     /**
      * Procesa una petición a la API de IA
-     * 
+     *
      * @param string $prompt
      * @param array $options
      * @return array
@@ -17,46 +17,58 @@ class AIService
     public function processPrompt(string $prompt, array $options = []): array
     {
         try {
-            // Aquí integrarías con tu servicio de IA (OpenAI, Anthropic, etc.)
-            // Ejemplo con OpenAI:
-            
-            $apiKey = config('services.openai.key');
-            
+            // Integración con Google Gemini API
+
+            $apiKey = config('services.gemini.key');
+
             if (!$apiKey) {
-                throw new \Exception('API Key de OpenAI no configurada');
+                throw new \Exception('API Key de Gemini no configurada');
             }
 
+            $model = $options['model'] ?? 'gemini-pro';
+            $maxTokens = $options['max_tokens'] ?? 1000;
+            $temperature = $options['temperature'] ?? 0.7;
+
+            // URL de la API de Gemini
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
                 'Content-Type' => 'application/json',
-            ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => $options['model'] ?? 'gpt-3.5-turbo',
-                'messages' => [
+            ])->timeout(60)->post($url, [
+                'contents' => [
                     [
-                        'role' => 'user',
-                        'content' => $prompt,
+                        'parts' => [
+                            [
+                                'text' => $prompt,
+                            ],
+                        ],
                     ],
                 ],
-                'max_tokens' => $options['max_tokens'] ?? 1000,
-                'temperature' => $options['temperature'] ?? 0.7,
+                'generationConfig' => [
+                    'temperature' => $temperature,
+                    'maxOutputTokens' => $maxTokens,
+                ],
             ]);
 
             if ($response->failed()) {
-                throw new \Exception('Error en la petición a la API de IA: ' . $response->body());
+                throw new \Exception('Error en la petición a la API de Gemini: ' . $response->body());
             }
 
             $data = $response->json();
 
+            // Extraer el texto de la respuesta de Gemini
+            $responseText = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
             return [
                 'success' => true,
-                'response' => $data['choices'][0]['message']['content'] ?? '',
-                'usage' => $data['usage'] ?? [],
-                'model' => $data['model'] ?? '',
+                'response' => $responseText,
+                'usage' => $data['usageMetadata'] ?? [],
+                'model' => $model,
             ];
 
         } catch (\Exception $e) {
             Log::error('Error en AIService: ' . $e->getMessage());
-            
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -66,7 +78,7 @@ class AIService
 
     /**
      * Procesa múltiples prompts en lote
-     * 
+     *
      * @param array $prompts
      * @param array $options
      * @return array

@@ -10,7 +10,7 @@ class ProductService
 {
     /**
      * Obtiene todos los productos con paginación
-     * 
+     *
      * @param array $filters
      * @return LengthAwarePaginator
      */
@@ -39,7 +39,7 @@ class ProductService
 
     /**
      * Busca un producto por ID
-     * 
+     *
      * @param string $id
      * @return Products
      */
@@ -50,7 +50,7 @@ class ProductService
 
     /**
      * Crea un nuevo producto
-     * 
+     *
      * @param array $data
      * @return Products
      */
@@ -66,7 +66,7 @@ class ProductService
 
     /**
      * Actualiza un producto existente
-     * 
+     *
      * @param string $id
      * @param array $data
      * @return Products
@@ -74,7 +74,7 @@ class ProductService
     public function update(string $id, array $data): Products
     {
         $product = $this->findById($id);
-        
+
         $product->update([
             'name' => $data['name'] ?? $product->name,
             'features' => $data['features'] ?? $product->features,
@@ -87,7 +87,7 @@ class ProductService
 
     /**
      * Elimina un producto
-     * 
+     *
      * @param string $id
      * @return bool
      */
@@ -99,7 +99,7 @@ class ProductService
 
     /**
      * Genera descripción con IA para un producto
-     * 
+     *
      * @param string $id
      * @param AIService $aiService
      * @return Products
@@ -111,20 +111,20 @@ class ProductService
         // Crear prompt basado en los datos del producto
         $prompt = "Genera una descripción de marketing atractiva y profesional para el siguiente producto:\n\n";
         $prompt .= "Nombre: {$product->name}\n";
-        
+
         if ($product->features) {
             $prompt .= "Características: {$product->features}\n";
         }
-        
+
         if ($product->price) {
             $prompt .= "Precio: \${$product->price}\n";
         }
-        
+
         $prompt .= "\nGenera una descripción persuasiva de 2-3 párrafos que resalte los beneficios del producto.";
 
         // Procesar con IA
         $result = $aiService->processPrompt($prompt, [
-            'model' => 'gpt-3.5-turbo',
+            'model' => 'gemini-pro',
             'max_tokens' => 300,
             'temperature' => 0.7,
         ]);
@@ -139,7 +139,7 @@ class ProductService
 
     /**
      * Busca productos por nombre o características
-     * 
+     *
      * @param string $term
      * @return Collection
      */

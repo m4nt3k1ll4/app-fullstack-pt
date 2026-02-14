@@ -26,7 +26,7 @@ class AIController extends Controller
 
             // Extraer opciones
             $options = [
-                'model' => $validated['model'] ?? 'gpt-3.5-turbo',
+                'model' => $validated['model'] ?? 'gemini-pro',
                 'max_tokens' => $validated['max_tokens'] ?? 1000,
                 'temperature' => $validated['temperature'] ?? 0.7,
             ];
@@ -72,11 +72,11 @@ class AIController extends Controller
             $request->validate([
                 'prompts' => 'required|array|min:1|max:10',
                 'prompts.*' => 'required|string|max:4000',
-                'model' => 'nullable|string|in:gpt-3.5-turbo,gpt-4,gpt-4-turbo',
+                'model' => 'nullable|string|in:gemini-pro,gemini-pro-vision',
             ]);
 
             $options = [
-                'model' => $request->input('model', 'gpt-3.5-turbo'),
+                'model' => $request->input('model', 'gemini-pro'),
             ];
 
             $results = $this->aiService->processBatch($request->input('prompts'), $options);

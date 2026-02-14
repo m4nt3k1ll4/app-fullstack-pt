@@ -25,7 +25,7 @@ class AIService
                 throw new \Exception('API Key de Gemini no configurada');
             }
 
-            $model = $options['model'] ?? 'gemini-1.5-pro';
+            $model = $options['model'] ?? 'gemini-2.5-flash';
             $maxTokens = $options['max_tokens'] ?? 1000;
             $temperature = $options['temperature'] ?? 0.7;
 

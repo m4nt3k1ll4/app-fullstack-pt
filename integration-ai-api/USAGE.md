@@ -137,6 +137,22 @@ X-API-Key: {tu_api_key}
 
 ## 🤖 Inteligencia Artificial
 
+> **💡 Importante sobre modelos y respuestas JSON:**  
+> 
+> **Modelos disponibles:**
+> - **gemini-2.5-flash** (recomendado, mejor precio-rendimiento, rápido)
+> - **gemini-2.5-pro** (modelo avanzado con razonamiento profundo)
+> - gemini-2.0-flash (deprecado, se eliminará marzo 31, 2026)
+>
+> **Para respuestas JSON:**  
+> Especifica en tu prompt la estructura que deseas, por ejemplo:  
+> `"Devuelve JSON con: {title: string, description: string, tags: array}"`
+> 
+> El campo `response` contendrá un string que necesitas parsear en tu frontend:
+> ```javascript
+> const data = JSON.parse(response.data.response);
+> ```
+
 ### Procesar Prompt Individual
 
 **Verbo:** `POST`  
@@ -152,16 +168,16 @@ Content-Type: application/json
 **Body:**
 ```json
 {
-  "prompt": "Escribe una descripción para un laptop gaming",
-  "model": "gemini-pro",
+  "prompt": "Genera una descripción de producto para un laptop gaming. Devuelve la respuesta en formato JSON con estos campos: {title: string, description: string, highlights: array}",
+  "model": "gemini-2.5-flash",
   "max_tokens": 1000,
   "temperature": 0.7
 }
 ```
 
 **Campos:**
-- `prompt` (requerido, string, máx. 4000 caracteres)
-- `model` (opcional, valores: "gemini-pro", "gemini-pro-vision", por defecto: "gemini-pro")
+- `prompt` (requerido, string, máx. 4000 caracteres) - **Tip:** Especifica la estructura JSON deseada en tu prompt
+- `model` (opcional, valores: "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", por defecto: "gemini-2.5-flash")
 - `max_tokens` (opcional, integer, rango: 1-8000, por defecto: 1000)
 - `temperature` (opcional, numeric, rango: 0-1, por defecto: 0.7)
 
@@ -171,13 +187,19 @@ Content-Type: application/json
   "success": true,
   "message": "Prompt procesado exitosamente",
   "data": {
-    "prompt": "Escribe una descripción para un laptop gaming",
-    "response": "Un laptop gaming de alta gama con procesador Intel Core i9...",
-    "model": "gemini-pro",
+    "prompt": "Genera una descripción de producto para un laptop gaming...",
+    "response": "{\"title\": \"Laptop Gaming de Alta Gama\", \"description\": \"Experimenta el máximo rendimiento con este laptop gaming equipado con procesador Intel Core i9, 32GB RAM y tarjeta gráfica RTX 4080. Perfecto para gaming profesional y creación de contenido.\", \"highlights\": [\"Intel Core i9\", \"32GB RAM\", \"RTX 4080\", \"Pantalla 144Hz\"]}",
+    "model": "gemini-2.5-flash",
     "tokens_used": 150
   }
 }
 ```
+
+> **Nota:** El campo `response` contiene un string JSON. Para usarlo en tu frontend:
+> ```javascript
+> const data = JSON.parse(response.data.response);
+> console.log(data.title, data.description, data.highlights);
+> ```
 
 ---
 
@@ -199,11 +221,11 @@ Content-Type: application/json
   "prompts": [
     {
       "prompt": "Describe un smartphone premium",
-      "model": "gemini-pro"
+      "model": "gemini-2.5-flash"
     },
     {
       "prompt": "Características de unos auriculares inalámbricos",
-      "model": "gemini-pro",
+      "model": "gemini-2.5-flash",
       "max_tokens": 500
     }
   ]
@@ -223,19 +245,21 @@ Content-Type: application/json
     "results": [
       {
         "prompt": "Describe un smartphone premium",
-        "response": "Un smartphone de última generación...",
-        "model": "gemini-pro"
+        "response": "{\"text\": \"Un smartphone de última generación...\"}",
+        "model": "gemini-2.5-flash"
       },
       {
         "prompt": "Características de unos auriculares inalámbricos",
-        "response": "Auriculares con cancelación de ruido...",
-        "model": "gemini-pro"
+        "response": "{\"text\": \"Auriculares con cancelación de ruido...\"}",
+        "model": "gemini-2.5-flash"
       }
     ],
     "total_processed": 2
   }
 }
 ```
+
+> **Nota:** Todas las respuestas de Gemini están en formato JSON. Incluye en tu prompt la estructura JSON que deseas recibir.
 
 ---
 
@@ -498,13 +522,13 @@ Content-Type: application/json
 ```json
 {
   "prompt": "Crea una descripción atractiva para este producto enfocada en gamers profesionales",
-  "model": "gemini-pro"
+  "model": "gemini-2.5-flash"
 }
 ```
 
 **Campos:**
 - `prompt` (opcional, string) - Instrucciones personalizadas para la IA
-- `model` (opcional, valores: "gemini-pro", "gemini-pro-vision")
+- `model` (opcional, valores: "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash")
 
 **Respuesta exitosa (200):**
 ```json

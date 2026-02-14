@@ -21,7 +21,7 @@ class AIPromptRequest extends FormRequest
     {
         return [
             'prompt' => 'required|string|max:4000',
-            'model' => 'nullable|string|in:gemini-1.5-pro,gemini-1.5-flash',
+            'model' => 'nullable|string|in:gemini-2.5-flash,gemini-2.5-pro,gemini-2.0-flash',
             'max_tokens' => 'nullable|integer|min:1|max:8000',
             'temperature' => 'nullable|numeric|min:0|max:1',
         ];
@@ -35,7 +35,7 @@ class AIPromptRequest extends FormRequest
         return [
             'prompt.required' => 'El prompt es obligatorio.',
             'prompt.max' => 'El prompt no puede exceder 4000 caracteres.',
-            'model.in' => 'El modelo debe ser gemini-1.5-pro o gemini-1.5-flash.',
+            'model.in' => 'El modelo debe ser gemini-2.5-flash, gemini-2.5-pro o gemini-2.0-flash.',
             'max_tokens.min' => 'El valor de max_tokens debe ser al menos 1.',
             'max_tokens.max' => 'El valor de max_tokens no puede exceder 8000.',
             'temperature.min' => 'La temperatura debe ser al menos 0.',

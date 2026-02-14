@@ -64,6 +64,13 @@ Obtén tu API Key desde [Google AI Studio](https://makersuite.google.com/app/api
 GEMINI_API_KEY=your-api-key-here
 ```
 
+> **💡 Nota:** Los modelos disponibles son:
+> - **gemini-2.5-flash** (recomendado, mejor precio-rendimiento)
+> - **gemini-2.5-pro** (modelo avanzado con razonamiento profundo)
+> - gemini-2.0-flash (deprecado, usar solo si es necesario)
+>
+> Para respuestas JSON, simplemente incluye en tu prompt la estructura deseada: "Devuelve la respuesta en formato JSON con estos campos: {campo1, campo2}"
+
 ### 4. Ejecutar migraciones y seeders
 
 ```bash

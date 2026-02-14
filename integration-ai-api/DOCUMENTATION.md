@@ -754,7 +754,7 @@ export const processPrompt = async (prompt, options = {}) => {
   try {
     const response = await api.post('/ai/prompt', {
       prompt: prompt,
-      model: options.model || 'gemini-pro',
+      model: options.model || 'gemini-1.5-pro',
       max_tokens: options.maxTokens || 150,
       temperature: options.temperature || 0.7,
     });

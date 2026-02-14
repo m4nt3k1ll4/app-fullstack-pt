@@ -121,16 +121,24 @@ class ProductService
         }
 
         $prompt .= "\nGenera una descripción persuasiva de 2-3 párrafos que resalte los beneficios del producto.";
+        $prompt .= "\n\nDevuelve la respuesta en formato JSON con esta estructura: {\"description\": \"tu descripción aquí\"}";
 
         // Procesar con IA
         $result = $aiService->processPrompt($prompt, [
-            'model' => 'gemini-1.5-pro',
+            'model' => 'gemini-2.5-flash',
             'max_tokens' => 300,
             'temperature' => 0.7,
         ]);
 
         if ($result['success']) {
-            $product->ai_description = $result['response'];
+            // Parsear la respuesta JSON
+            try {
+                $jsonResponse = json_decode($result['response'], true);
+                $product->ai_description = $jsonResponse['description'] ?? $result['response'];
+            } catch (\Exception $e) {
+                // Fallback: usar la respuesta directa si falla el parsing
+                $product->ai_description = $result['response'];
+            }
             $product->save();
         }
 

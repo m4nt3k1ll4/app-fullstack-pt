@@ -26,7 +26,7 @@ class AIController extends Controller
 
             // Extraer opciones
             $options = [
-                'model' => $validated['model'] ?? 'gemini-1.5-pro',
+                'model' => $validated['model'] ?? 'gemini-2.5-flash',
                 'max_tokens' => $validated['max_tokens'] ?? 1000,
                 'temperature' => $validated['temperature'] ?? 0.7,
             ];
@@ -76,7 +76,7 @@ class AIController extends Controller
             ]);
 
             $options = [
-                'model' => $request->input('model', 'gemini-1.5-pro'),
+                'model' => $request->input('model', 'gemini-2.5-flash'),
             ];
 
             $results = $this->aiService->processBatch($request->input('prompts'), $options);

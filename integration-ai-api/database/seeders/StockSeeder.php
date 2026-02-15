@@ -18,8 +18,9 @@ class StockSeeder extends Seeder
         foreach ($products as $product) {
             // Generar valores aleatorios realistas
             $stock = rand(5, 200);
-            $unitValue = round($product->price * rand(40, 70) / 100, 2); // 40-70% del precio como costo
-            $saleValue = (float) $product->price;
+            $price = (float) ($product->price ?? rand(50, 5000));
+            $unitValue = round($price * rand(40, 70) / 100, 2); // 40-70% del precio como costo
+            $saleValue = $price;
 
             Stock::firstOrCreate(
                 ['product_id' => $product->id],

@@ -10,6 +10,8 @@ import {
   FiUsers,
   FiUserCheck,
   FiShoppingBag,
+  FiShoppingCart,
+  FiDollarSign,
 } from "react-icons/fi";
 
 const adminLinks = [
@@ -17,10 +19,12 @@ const adminLinks = [
   { name: "Productos", href: "/dashboard/products", icon: FiBox },
   { name: "Usuarios", href: "/dashboard/admin/users", icon: FiUsers },
   { name: "Pendientes", href: "/dashboard/admin/users/pending", icon: FiUserCheck },
+  { name: "Ventas", href: "/dashboard/admin/ventas", icon: FiDollarSign },
 ];
 
 const userLinks = [
   { name: "Catálogo", href: "/dashboard/catalogo", icon: FiShoppingBag },
+  { name: "Mis Compras", href: "/dashboard/mis-compras", icon: FiShoppingCart },
 ];
 
 export function NavLinks() {

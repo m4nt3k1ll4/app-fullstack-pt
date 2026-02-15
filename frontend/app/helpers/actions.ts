@@ -12,6 +12,7 @@ import {
   adminDeleteUser,
   adminRegenerateKey,
   adminUpdateUser,
+  createPurchase as apiCreatePurchase,
 } from "@/app/helpers/api";
 
 // ============================================================
@@ -216,4 +217,38 @@ export async function updateUserAction(
 
   revalidatePath("/dashboard/admin/users");
   return { success: true, message: res.message || "Usuario actualizado exitosamente." };
+}
+
+// ============================================================
+// Purchase actions
+// ============================================================
+
+export async function createPurchaseAction(
+  items: { product_id: number; quantity: number }[]
+): Promise<ActionState> {
+  if (!items || items.length === 0) {
+    return { success: false, message: "El carrito está vacío." };
+  }
+
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return { success: false, message: "Debes iniciar sesión para realizar una compra." };
+    }
+
+    const userEmail = session.user.email;
+    const userName = session.user.name || userEmail.split("@")[0];
+
+    const res = await apiCreatePurchase(userEmail, userName, items);
+
+    if (!res.success) {
+      return { success: false, message: res.error || res.message || "Error al realizar la compra." };
+    }
+
+    revalidatePath("/dashboard/mis-compras");
+    revalidatePath("/dashboard/catalogo");
+    return { success: true, message: res.message || "Compra realizada exitosamente." };
+  } catch (e) {
+    return { success: false, message: e instanceof Error ? e.message : "Error al realizar la compra." };
+  }
 }

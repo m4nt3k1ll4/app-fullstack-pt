@@ -1,4 +1,4 @@
-import type { ApiResponse, Product, Statistics, UserFull, UserBasic, UserUpdated } from "@/app/types";
+import type { ApiResponse, Product, Statistics, UserFull, UserBasic, UserUpdated, Purchase, Stock } from "@/app/types";
 
 const BASE_URL = process.env.API_BASE_URL || "http://localhost:8000";
 const API_KEY = process.env.API_KEY || "";
@@ -239,4 +239,79 @@ export async function adminRegenerateKey(adminToken: string, id: number) {
     `/api/admin/users/${id}/regenerate-key`,
     { method: "POST", adminToken }
   );
+}
+
+// ============================================================
+// Stock endpoints
+// ============================================================
+
+export async function fetchStockByProduct(productId: number) {
+  return apiFetch<Stock>(`/api/stocks/product/${productId}`, { apiKey: API_KEY });
+}
+
+// ============================================================
+// Purchase endpoints (cliente — usan API_KEY global y pasan user_email)
+// ============================================================
+
+export async function createPurchase(
+  userEmail: string,
+  userName: string,
+  items: { product_id: number; quantity: number }[]
+) {
+  return apiFetch<Purchase>("/api/purchases", {
+    method: "POST",
+    apiKey: API_KEY,
+    body: JSON.stringify({ user_email: userEmail, user_name: userName, items }),
+  });
+}
+
+export async function fetchMyPurchases(
+  userEmail: string,
+  params?: {
+    status?: string;
+    per_page?: number;
+    page?: number;
+  }
+) {
+  const query = new URLSearchParams();
+  query.set("user_email", userEmail);
+  if (params?.status) query.set("status", params.status);
+  if (params?.per_page) query.set("per_page", String(params.per_page));
+  if (params?.page) query.set("page", String(params.page));
+
+  const qs = query.toString();
+  return apiFetch<Purchase[]>(`/api/purchases/my?${qs}`, { apiKey: API_KEY });
+}
+
+export async function fetchMyPurchaseById(userEmail: string, id: number) {
+  return apiFetch<Purchase>(`/api/purchases/my/${id}?user_email=${encodeURIComponent(userEmail)}`, { apiKey: API_KEY });
+}
+
+// ============================================================
+// Admin Purchase/Sales endpoints
+// ============================================================
+
+export async function fetchAllPurchases(
+  adminToken: string,
+  params?: {
+    status?: string;
+    user_id?: number;
+    search?: string;
+    per_page?: number;
+    page?: number;
+  }
+) {
+  const query = new URLSearchParams();
+  if (params?.status) query.set("status", params.status);
+  if (params?.user_id) query.set("user_id", String(params.user_id));
+  if (params?.search) query.set("search", params.search);
+  if (params?.per_page) query.set("per_page", String(params.per_page));
+  if (params?.page) query.set("page", String(params.page));
+
+  const qs = query.toString();
+  return apiFetch<Purchase[]>(`/api/admin/purchases${qs ? `?${qs}` : ""}`, { adminToken });
+}
+
+export async function fetchPurchaseById(adminToken: string, id: number) {
+  return apiFetch<Purchase>(`/api/admin/purchases/${id}`, { adminToken });
 }

@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import type { Product } from "@/app/types";
+import type { Product, Stock } from "@/app/types";
 import { formatCurrency } from "@/app/helpers/utils";
+import { fetchStockByProduct } from "@/app/helpers/api";
+import { useCart } from "@/app/components/CartContext";
 import Image from "next/image";
-import { FiX, FiChevronLeft, FiChevronRight, FiBox, FiZap } from "react-icons/fi";
+import { FiX, FiChevronLeft, FiChevronRight, FiBox, FiZap, FiShoppingCart, FiMinus, FiPlus } from "react-icons/fi";
 
 export function ProductModal({
   product,
@@ -16,7 +18,35 @@ export function ProductModal({
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const [imageIndex, setImageIndex] = useState(0);
+  const [stock, setStock] = useState<Stock | null>(null);
+  const [stockLoading, setStockLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
   const images = product.images && product.images.length > 0 ? product.images : [];
+
+  // Fetch stock info
+  useEffect(() => {
+    setStockLoading(true);
+    fetchStockByProduct(product.id)
+      .then((res) => {
+        if (res.success && res.data) {
+          setStock(res.data);
+        }
+      })
+      .finally(() => setStockLoading(false));
+  }, [product.id]);
+
+  const maxStock = stock ? stock.stock : 0;
+  const salePrice = stock ? Number(stock.sale_value) : Number(product.price);
+  const inStock = stock ? stock.stock > 0 : false;
+
+  const handleAddToCart = () => {
+    if (!inStock) return;
+    addItem(product, quantity, stock ?? undefined);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
 
   // Cerrar con Escape
   useEffect(() => {
@@ -158,6 +188,57 @@ export function ProductModal({
                 ))}
               </div>
             )}
+
+            {/* Stock & Add to Cart */}
+            <div className="border-t border-zinc-800 pt-4 space-y-3">
+              {stockLoading ? (
+                <div className="h-10 w-full animate-pulse rounded-lg bg-zinc-800" />
+              ) : inStock ? (
+                <>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-zinc-400">Disponible:</span>
+                    <span className="font-medium text-emerald-400">{maxStock} unidades</span>
+                    {stock && Number(stock.sale_value) !== Number(product.price) && (
+                      <span className="ml-auto text-sm font-medium text-indigo-400">
+                        Precio venta: {formatCurrency(salePrice)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center rounded-lg border border-zinc-700 bg-zinc-800">
+                      <button
+                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                        className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <FiMinus className="h-4 w-4" />
+                      </button>
+                      <span className="min-w-10 text-center text-sm font-medium text-zinc-200">
+                        {quantity}
+                      </span>
+                      <button
+                        onClick={() => setQuantity((q) => Math.min(maxStock, q + 1))}
+                        disabled={quantity >= maxStock}
+                        className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer disabled:opacity-40"
+                      >
+                        <FiPlus className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={added}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition-colors cursor-pointer disabled:opacity-70"
+                    >
+                      <FiShoppingCart className="h-4 w-4" />
+                      {added ? "¡Agregado!" : "Agregar al carrito"}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-lg border border-red-900/50 bg-red-900/20 px-4 py-3 text-center text-sm text-red-400">
+                  Sin stock disponible
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

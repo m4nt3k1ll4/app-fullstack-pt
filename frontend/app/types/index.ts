@@ -353,3 +353,82 @@ export interface GenericError {
   message: string;
   error?: string;
 }
+
+// ============================================================
+// Stock
+// ============================================================
+
+export interface Stock {
+  id: number;
+  product_id: number;
+  stock: number;
+  unit_value: string;
+  sale_value: string;
+  total_stock: string;
+  created_at: string;
+  updated_at: string;
+  product?: Product;
+}
+
+// ============================================================
+// Compras / Ventas
+// ============================================================
+
+export interface PurchaseItem {
+  id: number;
+  purchase_id: number;
+  product_id: number;
+  quantity: number;
+  unit_price: string;
+  subtotal: string;
+  created_at: string;
+  updated_at: string;
+  product?: Product;
+}
+
+export interface Purchase {
+  id: number;
+  user_id: number;
+  total: string;
+  status: "pending" | "completed" | "cancelled";
+  created_at: string;
+  updated_at: string;
+  items?: PurchaseItem[];
+  user?: UserMinimal;
+}
+
+export interface CreatePurchaseRequest {
+  items: {
+    product_id: number;
+    quantity: number;
+  }[];
+}
+
+export interface PurchaseListResponse {
+  success: true;
+  message: string;
+  data: Purchase[];
+  meta: PaginationMeta;
+}
+
+export interface PurchaseShowResponse {
+  success: true;
+  message: string;
+  data: Purchase;
+}
+
+export interface PurchaseCreateResponse {
+  success: true;
+  message: string;
+  data: Purchase;
+}
+
+// ============================================================
+// Carrito (solo frontend)
+// ============================================================
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+  stock?: Stock;
+}

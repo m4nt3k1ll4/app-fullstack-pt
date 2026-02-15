@@ -43,4 +43,33 @@ class JsonHelper
 
         return $decoded[$key] ?? ($fallback ?? $json);
     }
+
+    /**
+     * Limpia una respuesta de IA eliminando bloques de código markdown,
+     * intentando extraer JSON, o devolviendo el texto limpio.
+     *
+     * @param string $response
+     * @return string
+     */
+    public static function cleanAIResponse(string $response): string
+    {
+        $cleaned = $response;
+
+        // Eliminar bloques de código markdown (```json ... ``` o ``` ... ```)
+        if (preg_match('/```(?:json)?\s*(.+?)\s*```/s', $cleaned, $matches)) {
+            $cleaned = $matches[1];
+        }
+
+        // Si parece JSON, intentar extraer el campo 'description'
+        $trimmed = trim($cleaned);
+        if (str_starts_with($trimmed, '{')) {
+            $decoded = self::safeDecode($trimmed);
+            if ($decoded && isset($decoded['description'])) {
+                return trim($decoded['description']);
+            }
+        }
+
+        // Devolver texto limpio
+        return trim($cleaned);
+    }
 }

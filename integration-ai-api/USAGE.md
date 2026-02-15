@@ -240,7 +240,8 @@ GET /api/products?search=laptop&min_price=500&max_price=2000&per_page=10
       "name": "Laptop Gaming",
       "features": "Intel i9, 32GB RAM, RTX 4080",
       "price": 1499.99,
-      "ai_description": "Laptop de alta gama para gaming profesional..."
+      "ai_description": "Laptop de alta gama para gaming profesional...",
+      "images": ["https://images.unsplash.com/photo-laptop"]
     }
   ],
   "meta": {
@@ -278,6 +279,7 @@ Authorization: Bearer {tu_api_key}
     "features": "Intel i9, 32GB RAM, RTX 4080",
     "price": 1499.99,
     "ai_description": "Laptop de alta gama...",
+    "images": ["https://images.unsplash.com/photo-laptop"],
     "created_at": "2026-02-14T10:00:00.000000Z",
     "updated_at": "2026-02-14T10:00:00.000000Z"
   }
@@ -304,7 +306,11 @@ Content-Type: application/json
   "name": "Laptop Gaming Pro",
   "features": "Intel Core i9-13900K, NVIDIA RTX 4080, 32GB RAM DDR5",
   "price": 1899.99,
-  "ai_description": "Descripción opcional generada por IA"
+  "ai_description": "Descripción opcional generada por IA",
+  "images": [
+    "https://images.unsplash.com/photo-laptop-1",
+    "https://images.unsplash.com/photo-laptop-2"
+  ]
 }
 ```
 
@@ -313,6 +319,7 @@ Content-Type: application/json
 - `features` (opcional, string, máx. 500 caracteres)
 - `price` (opcional, numeric, rango: 0-999999.99)
 - `ai_description` (opcional, string)
+- `images` (opcional, array de URLs, máx. 5 elementos, cada URL máx. 2048 caracteres)
 
 **Respuesta exitosa (201):**
 ```json
@@ -325,6 +332,10 @@ Content-Type: application/json
     "features": "Intel Core i9-13900K, NVIDIA RTX 4080, 32GB RAM DDR5",
     "price": 1899.99,
     "ai_description": "Descripción opcional generada por IA",
+    "images": [
+      "https://images.unsplash.com/photo-laptop-1",
+      "https://images.unsplash.com/photo-laptop-2"
+    ],
     "created_at": "2026-02-14T12:00:00.000000Z",
     "updated_at": "2026-02-14T12:00:00.000000Z"
   }
@@ -350,7 +361,10 @@ Content-Type: application/json
 {
   "name": "Laptop Gaming Pro Plus",
   "features": "Intel Core i9-14900K, NVIDIA RTX 4090, 64GB RAM DDR5",
-  "price": 2499.99
+  "price": 2499.99,
+  "images": [
+    "https://images.unsplash.com/photo-laptop-new"
+  ]
 }
 ```
 
@@ -359,6 +373,7 @@ Content-Type: application/json
 - `features` (opcional, string, máx. 500 caracteres)
 - `price` (opcional, numeric, rango: 0-999999.99)
 - `ai_description` (opcional, string)
+- `images` (opcional, array de URLs, máx. 5 elementos, cada URL máx. 2048 caracteres)
 
 **Nota:** Con `PATCH` puedes enviar solo los campos que deseas actualizar.
 
@@ -373,6 +388,9 @@ Content-Type: application/json
     "features": "Intel Core i9-14900K, NVIDIA RTX 4090, 64GB RAM DDR5",
     "price": 2499.99,
     "ai_description": "Descripción actualizada...",
+    "images": [
+      "https://images.unsplash.com/photo-laptop-new"
+    ],
     "updated_at": "2026-02-14T13:00:00.000000Z"
   }
 }
@@ -432,13 +450,15 @@ GET /api/products/search/laptop
       "id": 1,
       "name": "Laptop Gaming",
       "features": "Intel i9, 32GB RAM",
-      "price": 1499.99
+      "price": 1499.99,
+      "images": ["https://images.unsplash.com/photo-laptop"]
     },
     {
       "id": 3,
       "name": "Laptop Ultrabook",
       "features": "Intel i7, 16GB RAM",
-      "price": 999.99
+      "price": 999.99,
+      "images": ["https://images.unsplash.com/photo-ultrabook"]
     }
   ]
 }
@@ -455,35 +475,26 @@ GET /api/products/search/laptop
 **Headers:**
 ```
 Authorization: Bearer {tu_api_key}
-Content-Type: application/json
 ```
 
-**Body:**
-```json
-{
-  "prompt": "Crea una descripción atractiva para este producto enfocada en gamers profesionales",
-  "model": "gemini-2.5-flash"
-}
-```
+**Body:** ❌ No requiere body
 
-**Campos:**
-- `prompt` (opcional, string) - Instrucciones personalizadas para la IA
-- `model` (opcional, valores: "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash")
+> **Nota:** La descripción se genera automáticamente usando el nombre, características y precio del producto. Se utiliza el modelo `gemini-2.5-flash` con un prompt interno optimizado para marketing.
 
 **Respuesta exitosa (200):**
 ```json
 {
   "success": true,
-  "message": "Descripción generada exitosamente",
+  "message": "Descripción generada exitosamente.",
   "data": {
-    "product": {
-      "id": 1,
-      "name": "Laptop Gaming",
-      "features": "Intel i9, 32GB RAM, RTX 4080",
-      "price": 1499.99,
-      "ai_description": "Sumérgete en la experiencia gaming definitiva..."
-    },
-    "ai_response": "Sumérgete en la experiencia gaming definitiva..."
+    "id": 1,
+    "name": "Laptop Gaming",
+    "features": "Intel i9, 32GB RAM, RTX 4080",
+    "price": 1499.99,
+    "ai_description": "Sumérgete en la experiencia gaming definitiva...",
+    "images": ["https://images.unsplash.com/photo-laptop"],
+    "created_at": "2026-02-14T10:00:00.000000Z",
+    "updated_at": "2026-02-14T10:30:00.000000Z"
   }
 }
 ```

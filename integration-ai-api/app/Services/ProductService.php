@@ -18,7 +18,7 @@ class ProductService
      */
     public function getAll(array $filters = []): LengthAwarePaginator
     {
-        $query = Products::query()->latest();
+        $query = Products::query()->orderByDesc('id');
 
         if (!empty($filters['search'])) {
             QueryHelper::applySearch($query, $filters['search'], ['name']);
@@ -103,7 +103,7 @@ class ProductService
         $product = $this->findById($id);
 
         // Crear prompt basado en los datos del producto
-        $prompt = "Genera una descripción de marketing atractiva y profesional para el siguiente producto:\n\n";
+        $prompt = "Genera una descripción de marketing atractiva y profesional en español para el siguiente producto.\n\n";
         $prompt .= "Nombre: {$product->name}\n";
 
         if ($product->features) {
@@ -114,21 +114,18 @@ class ProductService
             $prompt .= "Precio: \${$product->price}\n";
         }
 
-        $prompt .= "\nGenera una descripción persuasiva de 2-3 párrafos que resalte los beneficios del producto.";
-        $prompt .= "\n\nDevuelve la respuesta en formato JSON con esta estructura: {\"description\": \"tu descripción aquí\"}";
+        $prompt .= "\nEscribe una descripción persuasiva de 2-3 párrafos que resalte los beneficios del producto.";
+        $prompt .= "\nIMPORTANTE: Responde SOLO con el texto de la descripción, sin formato markdown, sin bloques de código, sin comillas, sin JSON.";
 
         // Procesar con IA
         $result = $aiService->processPrompt($prompt, [
             'model' => 'gemini-2.5-flash',
-            'max_tokens' => 300,
+            'max_tokens' => 2000,
             'temperature' => 0.7,
         ]);
 
         if ($result['success']) {
-            $product->ai_description = JsonHelper::extractOrFallback(
-                $result['response'],
-                'description'
-            );
+            $product->ai_description = JsonHelper::cleanAIResponse($result['response']);
             $product->save();
         }
 

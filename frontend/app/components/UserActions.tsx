@@ -8,6 +8,7 @@ import {
   revokeUserAction,
   deleteUserAction,
   regenerateKeyAction,
+  changeRoleAction,
 } from "@/app/helpers/actions";
 
 export function ApproveUserButton({ userId }: { userId: number }) {
@@ -134,5 +135,51 @@ export function RegenerateKeyButton({ userId }: { userId: number }) {
         </code>
       )}
     </div>
+  );
+}
+
+const ROLE_COLORS: Record<string, string> = {
+  admin: "bg-indigo-400/10 text-indigo-400 border-indigo-500/30",
+  interviewer: "bg-emerald-400/10 text-emerald-400 border-emerald-500/30",
+  client: "bg-zinc-700/50 text-zinc-400 border-zinc-600/30",
+};
+
+export function ChangeRoleSelect({
+  userId,
+  currentRole,
+}: {
+  userId: number;
+  currentRole: string;
+}) {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRole = e.target.value;
+    if (newRole === currentRole) return;
+    if (!confirm(`¿Cambiar rol a "${newRole}"?`)) {
+      e.target.value = currentRole;
+      return;
+    }
+    startTransition(async () => {
+      const result = await changeRoleAction(userId, newRole);
+      if (result.success) router.refresh();
+    });
+  };
+
+  const colorClass = ROLE_COLORS[currentRole] || ROLE_COLORS.client;
+
+  return (
+    <select
+      defaultValue={currentRole}
+      onChange={handleChange}
+      disabled={isPending}
+      className={`rounded-full border px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 cursor-pointer appearance-none text-center ${colorClass} bg-transparent`}
+      title="Cambiar rol"
+    >
+      <option value="client">client</option>
+      <option value="interviewer">interviewer</option>
+      <option value="admin">admin</option>
+    </select>
   );
 }

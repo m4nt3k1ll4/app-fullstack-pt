@@ -7,6 +7,7 @@ import {
   RevokeUserButton,
   DeleteUserButton,
   RegenerateKeyButton,
+  ChangeRoleSelect,
 } from "./UserActions";
 
 export async function UsersTable({
@@ -96,16 +97,10 @@ export async function UsersTable({
                   )}
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell">
-                  <div className="flex flex-wrap gap-1">
-                    {user.roles.map((role) => (
-                      <span
-                        key={role.id}
-                        className="inline-flex items-center rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400"
-                      >
-                        {role.name}
-                      </span>
-                    ))}
-                  </div>
+                  <ChangeRoleSelect
+                    userId={user.id}
+                    currentRole={user.roles[0]?.name ?? "client"}
+                  />
                 </td>
                 <td className="px-4 py-3 hidden lg:table-cell">
                   <span className="text-sm text-zinc-500">

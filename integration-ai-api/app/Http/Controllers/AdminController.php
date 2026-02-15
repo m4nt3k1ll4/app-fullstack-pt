@@ -286,6 +286,7 @@ class AdminController extends Controller
             $validated = $request->validate([
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|required|email|max:255',
+                'role' => 'sometimes|required|string|in:admin,client,interviewer',
             ]);
 
             $user = $this->adminService->updateUser($id, $validated);
@@ -293,7 +294,10 @@ class AdminController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario actualizado exitosamente.',
-                'data' => $user->only(['id', 'name', 'email', 'is_approved', 'created_at', 'updated_at']),
+                'data' => array_merge(
+                    $user->only(['id', 'name', 'email', 'is_approved', 'created_at', 'updated_at']),
+                    ['roles' => $user->roles->pluck('name')]
+                ),
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {

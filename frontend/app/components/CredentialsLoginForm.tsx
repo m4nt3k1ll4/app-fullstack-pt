@@ -45,8 +45,15 @@ export default function CredentialsLoginForm() {
         return;
       }
 
-      // Redirect to dashboard
-      router.push("/dashboard");
+      // Fetch updated session to check role
+      const { getSession } = await import("next-auth/react");
+      const session = await getSession();
+
+      if (session?.user?.isInterviewer) {
+        router.push("/dashboard/presentacion");
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch {
       setError("Ocurrió un error. Intenta de nuevo.");

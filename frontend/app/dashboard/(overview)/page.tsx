@@ -9,8 +9,8 @@ import { LatestProducts } from "@/app/components/LatestProducts";
 export default async function DashboardPage() {
   const session = await auth();
 
-  // Usuarios normales solo ven el catálogo
-  if (!session?.user?.isAdmin) {
+  // Usuarios normales solo ven el catálogo (admins e interviewers ven el dashboard)
+  if (!session?.user?.isAdmin && !session?.user?.isInterviewer) {
     redirect("/dashboard/catalogo");
   }
 

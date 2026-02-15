@@ -197,6 +197,18 @@ export async function regenerateKeyAction(id: number): Promise<ActionState> {
   return { success: true, message: res.message || "API Key regenerada exitosamente." };
 }
 
+export async function changeRoleAction(id: number, role: string): Promise<ActionState> {
+  const token = await requireAdminToken();
+  const res = await adminUpdateUser(token, id, { role });
+
+  if (!res.success) {
+    return { success: false, message: res.message || "Error al cambiar rol." };
+  }
+
+  revalidatePath("/dashboard/admin/users");
+  return { success: true, message: `Rol cambiado a '${role}' exitosamente.` };
+}
+
 export async function updateUserAction(
   id: number,
   _prevState: ActionState,

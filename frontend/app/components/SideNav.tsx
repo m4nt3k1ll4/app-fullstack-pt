@@ -7,6 +7,7 @@ import { auth } from "@/app/auth";
 export async function SideNav() {
   const session = await auth();
   const isAdmin = session?.user?.isAdmin ?? false;
+  const isInterviewer = session?.user?.isInterviewer ?? false;
 
   return (
     <div className="flex h-full flex-col bg-zinc-900 border-r border-zinc-800">
@@ -32,6 +33,11 @@ export async function SideNav() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-indigo-400/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-400 uppercase">
                   <FiShield className="h-2.5 w-2.5" />
                   Admin
+                </span>
+              ) : isInterviewer ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 uppercase">
+                  <FiShield className="h-2.5 w-2.5" />
+                  Interviewer
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-zinc-700/50 px-2 py-0.5 text-[10px] font-semibold text-zinc-400 uppercase">

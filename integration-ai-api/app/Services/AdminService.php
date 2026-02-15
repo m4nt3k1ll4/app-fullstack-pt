@@ -182,6 +182,14 @@ class AdminService
 
         $user->save();
 
-        return $user;
+        // Asignar rol si se especifica
+        if (isset($data['role'])) {
+            $role = \App\Models\Role::where('name', $data['role'])->first();
+            if ($role) {
+                $user->roles()->sync([$role->id]);
+            }
+        }
+
+        return $user->load('roles');
     }
 }

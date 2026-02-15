@@ -212,7 +212,7 @@ export async function fetchUserById(adminToken: string, id: number) {
   return apiFetch<UserFull>(`/api/admin/users/${id}`, { adminToken });
 }
 
-export async function adminUpdateUser(adminToken: string, id: number, body: { name?: string; email?: string }) {
+export async function adminUpdateUser(adminToken: string, id: number, body: { name?: string; email?: string; role?: string }) {
   return apiFetch<UserUpdated>(`/api/admin/users/${id}`, {
     method: "PUT",
     adminToken,

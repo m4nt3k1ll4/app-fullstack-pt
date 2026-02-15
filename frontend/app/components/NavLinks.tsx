@@ -13,6 +13,8 @@ import {
   FiShoppingCart,
   FiDollarSign,
   FiPackage,
+  FiBriefcase,
+  FiFileText,
 } from "react-icons/fi";
 
 const adminLinks = [
@@ -22,6 +24,21 @@ const adminLinks = [
   { name: "Usuarios", href: "/dashboard/admin/users", icon: FiUsers },
   { name: "Pendientes", href: "/dashboard/admin/users/pending", icon: FiUserCheck },
   { name: "Ventas", href: "/dashboard/admin/ventas", icon: FiDollarSign },
+];
+
+const interviewerLinks = [
+  { name: "Presentación", href: "/dashboard/presentacion", icon: FiBriefcase },
+  { name: "API Docs", href: "/dashboard/api-docs", icon: FiFileText },
+  // — Admin —
+  { name: "Dashboard", href: "/dashboard", icon: FiHome },
+  { name: "Productos", href: "/dashboard/products", icon: FiBox },
+  { name: "Inventario", href: "/dashboard/admin/stock", icon: FiPackage },
+  { name: "Usuarios", href: "/dashboard/admin/users", icon: FiUsers },
+  { name: "Pendientes", href: "/dashboard/admin/users/pending", icon: FiUserCheck },
+  { name: "Ventas", href: "/dashboard/admin/ventas", icon: FiDollarSign },
+  // — Usuario —
+  { name: "Catálogo", href: "/dashboard/catalogo", icon: FiShoppingBag },
+  { name: "Mis Compras", href: "/dashboard/mis-compras", icon: FiShoppingCart },
 ];
 
 const userLinks = [
@@ -34,7 +51,8 @@ export function NavLinks() {
   const { data: session } = useSession();
 
   const isAdmin = session?.user?.isAdmin ?? false;
-  const links = isAdmin ? adminLinks : userLinks;
+  const isInterviewer = session?.user?.isInterviewer ?? false;
+  const links = isAdmin ? adminLinks : isInterviewer ? interviewerLinks : userLinks;
 
   return (
     <ul className="space-y-1">

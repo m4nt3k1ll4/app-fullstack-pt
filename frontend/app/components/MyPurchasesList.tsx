@@ -52,21 +52,21 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
             {formatCurrency(Number(purchase.total))}
           </span>
           {expanded ? (
-            <FiChevronUp className="h-4 w-4 text-zinc-500" />
+            <FiChevronUp className="h-5 w-5 text-zinc-500" />
           ) : (
-            <FiChevronDown className="h-4 w-4 text-zinc-500" />
+            <FiChevronDown className="h-5 w-5 text-zinc-500" />
           )}
         </div>
       </button>
 
       {expanded && purchase.items && (
-        <div className="border-t border-zinc-800 px-4 py-3">
+        <div className="border-t border-zinc-800 bg-zinc-950 p-4">
           <table className="w-full">
             <thead>
               <tr className="text-xs text-zinc-500">
                 <th className="pb-2 text-left font-medium">Producto</th>
-                <th className="pb-2 text-center font-medium">Cant.</th>
-                <th className="pb-2 text-right font-medium">P. Unit.</th>
+                <th className="pb-2 text-center font-medium">Cantidad</th>
+                <th className="pb-2 text-right font-medium">P. Unitario</th>
                 <th className="pb-2 text-right font-medium">Subtotal</th>
               </tr>
             </thead>
@@ -100,16 +100,14 @@ export function MyPurchasesList({ purchases }: { purchases: Purchase[] }) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 py-16 text-zinc-500">
         <FiPackage className="mb-4 h-14 w-14" />
-        <p className="text-lg font-medium">No tienes compras aún</p>
-        <p className="mt-1 text-sm">
-          Visita el catálogo para realizar tu primera compra.
-        </p>
+        <p className="text-lg font-medium">No tienes compras registradas</p>
+        <p className="mt-2 text-sm">Explora nuestro catálogo para empezar</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {purchases.map((purchase) => (
         <PurchaseCard key={purchase.id} purchase={purchase} />
       ))}

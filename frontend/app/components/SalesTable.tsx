@@ -3,7 +3,7 @@
 import type { Purchase } from "@/app/types";
 import { formatCurrency, formatDate } from "@/app/helpers/utils";
 import { FiPackage, FiChevronDown, FiChevronUp } from "react-icons/fi";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 
 const statusColors: Record<string, string> = {
   completed: "bg-emerald-900/30 text-emerald-400 border-emerald-800",
@@ -45,11 +45,8 @@ export function SalesTable({ purchases }: { purchases: Purchase[] }) {
         </thead>
         <tbody>
           {purchases.map((purchase) => (
-            <>
-              <tr
-                key={purchase.id}
-                className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors"
-              >
+            <Fragment key={purchase.id}>
+              <tr className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
                 <td className="px-4 py-3 text-sm font-medium text-zinc-300">
                   #{purchase.id}
                 </td>
@@ -130,7 +127,7 @@ export function SalesTable({ purchases }: { purchases: Purchase[] }) {
                   </td>
                 </tr>
               )}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>

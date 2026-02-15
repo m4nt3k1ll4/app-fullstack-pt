@@ -110,23 +110,23 @@ export function ProductCard({
         </p>
 
         {/* Controles de cantidad y agregar al carrito */}
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-3 flex items-center gap-1.5">
           {/* Selector de cantidad */}
           <div className="flex items-center rounded-lg border border-zinc-700 bg-zinc-800">
             <button
               onClick={handleDecrement}
               className="p-2 text-zinc-400 hover:text-zinc-200 transition-colors"
             >
-              <FiMinus className="h-4 w-4" />
+              <FiMinus className="h-3.5 w-3.5" />
             </button>
-            <span className="px-3 text-sm font-medium text-zinc-200">
+            <span className="px-2.5 text-sm font-medium text-zinc-200 min-w-6 text-center">
               {quantity}
             </span>
             <button
               onClick={handleIncrement}
               className="p-2 text-zinc-400 hover:text-zinc-200 transition-colors"
             >
-              <FiPlus className="h-4 w-4" />
+              <FiPlus className="h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -134,20 +134,20 @@ export function ProductCard({
           <button
             onClick={handleAddToCart}
             disabled={isAdding}
-            className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 min-w-0 flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-2.5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FiShoppingCart className="h-4 w-4" />
-            {isAdding ? "..." : "Agregar"}
+            <FiShoppingCart className="h-4 w-4 shrink-0" />
+            <span className="truncate">{isAdding ? "..." : "Agregar"}</span>
           </button>
         </div>
 
         {/* Botón ver detalles */}
         <button
           onClick={onClick}
-          className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
         >
-          <FiEye className="h-4 w-4" />
-          Ver detalles
+          <FiEye className="h-4 w-4 shrink-0" />
+          <span>Ver detalles</span>
         </button>
       </div>
     </div>

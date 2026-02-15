@@ -8,6 +8,7 @@ import {
   updateProduct as apiUpdateProduct,
   deleteProduct as apiDeleteProduct,
   generateProductDescription as apiGenerateDescription,
+  fetchProductById as apiFetchProductById,
   adminApproveUser,
   adminRevokeUser,
   adminDeleteUser,
@@ -263,7 +264,7 @@ export async function createPurchaseAction(
       0
     ) || backendPurchase.total ? Number(backendPurchase.total) : 0;
 
-    // Guardar en Prisma
+    // Guardar en Prisma (incluye nombre de producto para evitar consultas N+1)
     await prisma.purchase.create({
       data: {
         userId: userId,
@@ -274,6 +275,7 @@ export async function createPurchaseAction(
             const backendItem = backendPurchase.items?.find((bi) => bi.product_id === item.product_id);
             return {
               productId: item.product_id,
+              productName: backendItem?.product?.name || `Producto #${item.product_id}`,
               quantity: item.quantity,
               unitPrice: backendItem ? Number(backendItem.unit_price) : 0,
               subtotal: backendItem ? Number(backendItem.subtotal) : 0,
@@ -293,7 +295,21 @@ export async function createPurchaseAction(
 }
 
 /**
+ * Convert a string ID to a unique numeric hash
+ */
+function stringToNumericId(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
+
+/**
  * Fetch user's purchases from Prisma database
+ * Product names are stored in PurchaseItem — no extra API calls needed
  */
 export async function fetchMyPurchasesAction(
   userId: string,
@@ -326,20 +342,24 @@ export async function fetchMyPurchasesAction(
     const lastPage = Math.ceil(total / perPage);
 
     // Map Prisma data to frontend Purchase interface format
+    // Product names are stored directly in PurchaseItem — zero API calls
     const mappedPurchases = purchases.map(p => ({
-      id: parseInt(p.id) || 0, // Convert string UUID to number (or use hash if needed)
-      user_id: 0, // Not needed for user's own purchases
+      id: stringToNumericId(p.id),
+      user_id: 0,
       total: p.total.toString(),
       status: p.status as "pending" | "completed" | "cancelled",
       created_at: p.createdAt.toISOString(),
       updated_at: p.updatedAt.toISOString(),
       items: p.items.map(item => ({
-        id: parseInt(item.id) || 0,
-        purchase_id: parseInt(p.id) || 0,
+        id: stringToNumericId(item.id),
+        purchase_id: stringToNumericId(p.id),
         product_id: item.productId,
         quantity: item.quantity,
         unit_price: item.unitPrice.toString(),
         subtotal: item.subtotal.toString(),
+        created_at: item.createdAt.toISOString(),
+        updated_at: item.updatedAt.toISOString(),
+        product: { id: item.productId, name: item.productName } as { id: number; name: string },
       })),
       user: p.user ? {
         id: 0,

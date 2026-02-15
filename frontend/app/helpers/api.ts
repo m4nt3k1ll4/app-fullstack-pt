@@ -10,9 +10,9 @@ interface FetchOptions extends RequestInit {
 
 export async function apiFetch<T>(
   endpoint: string,
-  options: FetchOptions = {}
+  options: FetchOptions & { revalidate?: number } = {}
 ): Promise<ApiResponse<T>> {
-  const { apiKey, adminToken, headers: customHeaders, ...rest } = options;
+  const { apiKey, adminToken, headers: customHeaders, revalidate, ...rest } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -28,11 +28,18 @@ export async function apiFetch<T>(
 
   const url = `${BASE_URL}${endpoint}`;
 
+  // Use Next.js fetch cache: revalidate for GET requests, no-store for mutations
+  const cacheOptions: RequestInit = rest.method && rest.method !== "GET"
+    ? { cache: "no-store" as const }
+    : revalidate !== undefined
+      ? { next: { revalidate } }
+      : { cache: "no-store" as const };
+
   try {
     const response = await fetch(url, {
       ...rest,
       headers,
-      cache: "no-store",
+      ...cacheOptions,
     });
 
     const data: ApiResponse<T> = await response.json();
@@ -52,7 +59,7 @@ export async function apiFetch<T>(
 // ============================================================
 
 export async function apiLogin(email: string, password: string) {
-  return apiFetch<{ user: { id: number; name: string; email: string }; api_key: string; admin_token?: string }>(
+  return apiFetch<{ user: { id: number; name: string; email: string; role?: string }; api_key: string; admin_token?: string }>(
     "/api/auth/login",
     {
       method: "POST",
@@ -87,11 +94,11 @@ export async function fetchProducts(params?: {
   if (params?.page) query.set("page", String(params.page));
 
   const qs = query.toString();
-  return apiFetch<Product[]>(`/api/products${qs ? `?${qs}` : ""}`, { apiKey: API_KEY });
+  return apiFetch<Product[]>(`/api/products${qs ? `?${qs}` : ""}`, { apiKey: API_KEY, revalidate: 30 });
 }
 
 export async function fetchProductById(id: number) {
-  return apiFetch<Product>(`/api/products/${id}`, { apiKey: API_KEY });
+  return apiFetch<Product>(`/api/products/${id}`, { apiKey: API_KEY, revalidate: 60 });
 }
 
 export async function createProduct(body: {
@@ -246,7 +253,7 @@ export async function adminRegenerateKey(adminToken: string, id: number) {
 // ============================================================
 
 export async function fetchStockByProduct(productId: number) {
-  return apiFetch<Stock>(`/api/stocks/product/${productId}`, { apiKey: API_KEY });
+  return apiFetch<Stock>(`/api/stocks/product/${productId}`, { apiKey: API_KEY, revalidate: 30 });
 }
 
 export async function fetchAllStocks(

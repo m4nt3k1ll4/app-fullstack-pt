@@ -383,7 +383,7 @@ export interface PurchaseItem {
   subtotal: string;
   created_at: string;
   updated_at: string;
-  product?: Product;
+  product?: Partial<Product> & { id: number; name: string };
 }
 
 export interface Purchase {

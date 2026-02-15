@@ -74,8 +74,11 @@ class AuthService
         // Generar nueva API Key (siempre se regenera al hacer login)
         $apiKey = ApiKeyHelper::assignNewKey($user, $this->apiKeyService);
 
+        // Determine primary role
+        $role = $user->isAdmin() ? 'admin' : ($user->isInterviewer() ? 'interviewer' : 'client');
+
         $response = [
-            'user' => $user->only(['id', 'name', 'email']),
+            'user' => array_merge($user->only(['id', 'name', 'email']), ['role' => $role]),
             'api_key' => $apiKey,
             'message' => 'Inicio de sesión exitoso.',
         ];

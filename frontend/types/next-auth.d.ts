@@ -5,6 +5,7 @@ declare module "next-auth" {
     user: {
       id: string;
       isAdmin: boolean;
+      isInterviewer: boolean;
       apiKey?: string;
       adminToken?: string;
     } & DefaultSession["user"];
@@ -12,6 +13,7 @@ declare module "next-auth" {
 
   interface User {
     isAdmin?: boolean;
+    isInterviewer?: boolean;
     apiKey?: string;
     adminToken?: string;
     backendPassword?: string;
@@ -22,6 +24,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     isAdmin?: boolean;
+    isInterviewer?: boolean;
     apiKey?: string;
     adminToken?: string;
     adminTokenExpiry?: number;

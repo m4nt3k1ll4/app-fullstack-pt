@@ -58,7 +58,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: String(user.id),
           email: user.email,
           name: user.name,
-          isAdmin: !!admin_token,
+          isAdmin: user.role === "admin",
+          isInterviewer: user.role === "interviewer",
           apiKey: api_key,
           adminToken: admin_token || undefined,
           backendPassword: password,
@@ -75,6 +76,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.isAdmin = user.isAdmin ?? false;
+        token.isInterviewer = user.isInterviewer ?? false;
         token.apiKey = user.apiKey;
         token.adminToken = user.adminToken;
         token.adminTokenExpiry = user.adminToken
@@ -86,7 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // Refresh admin token si está por expirar (30s de buffer)
       if (
-        token.isAdmin &&
+        (token.isAdmin || token.isInterviewer) &&
         token.adminTokenExpiry &&
         token.backendEmail &&
         token.backendPassword &&
@@ -113,6 +115,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = (token.id as string) ?? "";
         session.user.isAdmin = (token.isAdmin as boolean) ?? false;
+        session.user.isInterviewer = (token.isInterviewer as boolean) ?? false;
         session.user.apiKey = token.apiKey as string | undefined;
         session.user.adminToken = token.adminToken as string | undefined;
       }

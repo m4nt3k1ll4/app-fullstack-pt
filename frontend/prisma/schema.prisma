@@ -83,14 +83,15 @@ model Purchase {
 }
 
 model PurchaseItem {
-  id         String   @id @default(cuid())
-  purchaseId String   @map("purchase_id")
-  productId  Int      @map("product_id") // ID del producto en el backend de Laravel
-  quantity   Int
-  unitPrice  Decimal  @map("unit_price") @db.Decimal(10, 2)
-  subtotal   Decimal  @db.Decimal(10, 2)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(cuid())
+  purchaseId  String   @map("purchase_id")
+  productId   Int      @map("product_id") // ID del producto en el backend de Laravel
+  productName String   @default("") @map("product_name") // Nombre del producto al momento de la compra
+  quantity    Int
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2)
+  subtotal    Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
 

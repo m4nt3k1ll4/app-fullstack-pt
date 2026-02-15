@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/app/auth";
 import GoogleSignInButton from "@/app/components/GoogleSignInButton";
 import CredentialsLoginForm from "@/app/components/CredentialsLoginForm";
+import LoginTabs from "@/app/components/LoginTabs";
 import Logo from "@/app/components/Logo";
 import { bebasNeue } from "@/app/ui/fonts";
 import { FiArrowLeft } from "react-icons/fi";
@@ -56,21 +57,14 @@ export default async function LoginPage() {
 
           <h1 className="mb-2 text-2xl font-bold">Iniciar Sesión</h1>
           <p className="mb-8 text-sm text-zinc-400">
-            Usa tu email y contraseña, o continúa con Google.
+            Elige tu tipo de acceso para continuar.
           </p>
 
-          {/* Credentials Login Form */}
-          <CredentialsLoginForm />
-
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-zinc-800" />
-            <span className="text-xs text-zinc-600">O</span>
-            <div className="h-px flex-1 bg-zinc-800" />
-          </div>
-
-          {/* Google Sign In */}
-          <GoogleSignInButton />
+          {/* Tabs: Corporativo (Credentials) | Usuarios (Google) */}
+          <LoginTabs
+            corporativeForm={<CredentialsLoginForm />}
+            userButton={<GoogleSignInButton />}
+          />
 
           <p className="mt-6 text-center text-xs text-zinc-600">
             Al continuar, aceptas nuestros términos de servicio y política de

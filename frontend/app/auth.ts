@@ -102,8 +102,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.adminToken = refreshed.adminToken;
           token.adminTokenExpiry = refreshed.expiresAt;
         } else {
-          // Token no se pudo refrescar — revocar admin
+          // Token no se pudo refrescar — revocar admin/interviewer
           token.isAdmin = false;
+          token.isInterviewer = false;
           token.adminToken = undefined;
           token.adminTokenExpiry = undefined;
         }

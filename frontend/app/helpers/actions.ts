@@ -38,7 +38,7 @@ export async function logOut() {
 /** Obtiene el admin token de la session actual o lanza error */
 async function requireAdminToken(): Promise<string> {
   const session = await auth();
-  if (!session?.user?.isAdmin || !session.user.adminToken) {
+  if ((!session?.user?.isAdmin && !session?.user?.isInterviewer) || !session.user.adminToken) {
     throw new Error("Acceso denegado: se requiere token de administrador.");
   }
   return session.user.adminToken;
@@ -258,7 +258,17 @@ export async function createPurchaseAction(
 
     const userEmail = session.user.email;
     const userName = session.user.name || userEmail.split("@")[0];
-    const userId = session.user.id;
+
+    // Asegurar que el usuario existe en la BD de Prisma (necesario para credentials login)
+    const prismaUser = await prisma.user.upsert({
+      where: { email: userEmail },
+      update: {},
+      create: {
+        email: userEmail,
+        name: userName,
+      },
+    });
+    const userId = prismaUser.id;
 
     // 1. Registrar compra en el backend de Laravel (manejo de inventario y stock)
     const res = await apiCreatePurchase(userEmail, userName, items);

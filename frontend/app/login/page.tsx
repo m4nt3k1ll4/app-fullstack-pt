@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/app/auth";
 import GoogleSignInButton from "@/app/components/GoogleSignInButton";
+import CredentialsLoginForm from "@/app/components/CredentialsLoginForm";
 import Logo from "@/app/components/Logo";
 import { bebasNeue } from "@/app/ui/fonts";
 import { FiArrowLeft } from "react-icons/fi";
@@ -16,8 +17,8 @@ export default async function LoginPage() {
   return (
     <div className="flex min-h-screen bg-black text-white">
       {/* Left panel — Branding */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-black to-black p-12 lg:flex">
-        <div className="pointer-events-none absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-indigo-600/10 blur-[120px]" />
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-linear-to-br from-indigo-950 via-black to-black p-12 lg:flex">
+        <div className="pointer-events-none absolute top-0 right-0 h-125 w-125 rounded-full bg-indigo-600/10 blur-[120px]" />
         <Logo />
         <div className="relative z-10">
           <h2
@@ -55,9 +56,20 @@ export default async function LoginPage() {
 
           <h1 className="mb-2 text-2xl font-bold">Iniciar Sesión</h1>
           <p className="mb-8 text-sm text-zinc-400">
-            Usa tu cuenta de Google para acceder a la plataforma.
+            Usa tu email y contraseña, o continúa con Google.
           </p>
 
+          {/* Credentials Login Form */}
+          <CredentialsLoginForm />
+
+          {/* Divider */}
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-zinc-800" />
+            <span className="text-xs text-zinc-600">O</span>
+            <div className="h-px flex-1 bg-zinc-800" />
+          </div>
+
+          {/* Google Sign In */}
           <GoogleSignInButton />
 
           <p className="mt-6 text-center text-xs text-zinc-600">

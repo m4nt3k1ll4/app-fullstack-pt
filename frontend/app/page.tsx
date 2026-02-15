@@ -32,8 +32,8 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16">
         {/* Background gradient */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-indigo-950/30 via-black to-black" />
-        <div className="pointer-events-none absolute top-1/4 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600/10 blur-[120px]" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-indigo-950/30 via-black to-black" />
+        <div className="pointer-events-none absolute top-1/4 left-1/2 h-150 w-150 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600/10 blur-[120px]" />
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-sm text-indigo-300">
@@ -46,7 +46,7 @@ export default function Home() {
           >
             Tu plataforma
             <br />
-            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
               inteligente
             </span>
           </h1>

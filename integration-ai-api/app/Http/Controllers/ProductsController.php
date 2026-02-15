@@ -17,9 +17,9 @@ class ProductsController extends Controller
 
     /**
      * Lista todos los productos con filtros opcionales
-     * 
+     *
      * GET /api/products?search=laptop&min_price=100&max_price=1000&per_page=10
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */
@@ -52,9 +52,9 @@ class ProductsController extends Controller
 
     /**
      * Muestra un producto específico
-     * 
+     *
      * GET /api/products/{id}
-     * 
+     *
      * @param int $id
      * @return JsonResponse
      */
@@ -80,9 +80,9 @@ class ProductsController extends Controller
 
     /**
      * Crea un nuevo producto
-     * 
+     *
      * POST /api/products
-     * 
+     *
      * @param CreateProductRequest $request
      * @return JsonResponse
      */
@@ -108,9 +108,9 @@ class ProductsController extends Controller
 
     /**
      * Actualiza un producto existente
-     * 
+     *
      * PUT/PATCH /api/products/{id}
-     * 
+     *
      * @param UpdateProductRequest $request
      * @param int $id
      * @return JsonResponse
@@ -137,9 +137,9 @@ class ProductsController extends Controller
 
     /**
      * Elimina un producto
-     * 
+     *
      * DELETE /api/products/{id}
-     * 
+     *
      * @param int $id
      * @return JsonResponse
      */
@@ -164,9 +164,9 @@ class ProductsController extends Controller
 
     /**
      * Busca productos por término
-     * 
+     *
      * GET /api/products/search/{term}
-     * 
+     *
      * @param string $term
      * @return JsonResponse
      */
@@ -195,9 +195,9 @@ class ProductsController extends Controller
 
     /**
      * Genera descripción con IA para un producto
-     * 
+     *
      * POST /api/products/{id}/generate-description
-     * 
+     *
      * @param int $id
      * @param AIService $aiService
      * @return JsonResponse

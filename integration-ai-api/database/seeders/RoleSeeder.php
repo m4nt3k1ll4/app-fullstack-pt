@@ -22,6 +22,10 @@ class RoleSeeder extends Seeder
                 'name' => 'client',
                 'description' => 'Cliente con acceso limitado a funcionalidades básicas',
             ],
+            [
+                'name' => 'interviewer',
+                'description' => 'Entrevistador con acceso completo al sistema para pruebas',
+            ],
         ];
 
         foreach ($roles as $role) {

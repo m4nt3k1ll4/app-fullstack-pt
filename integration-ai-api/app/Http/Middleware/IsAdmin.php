@@ -26,8 +26,8 @@ class IsAdmin
             ], 401);
         }
 
-        // Verificar que el usuario sea administrador
-        if (!$user->isAdmin()) {
+        // Verificar que el usuario sea administrador o entrevistador
+        if (!$user->hasAdminAccess()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Acceso denegado.',

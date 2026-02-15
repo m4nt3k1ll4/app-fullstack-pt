@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StockController;
 
 // ============================================
 // Rutas Públicas (No requieren autenticación)
@@ -44,6 +45,17 @@ Route::middleware('api.key')->group(function () {
         Route::patch('/{id}', [ProductsController::class, 'update']);
         Route::delete('/{id}', [ProductsController::class, 'destroy']);
         Route::post('/{id}/generate-description', [ProductsController::class, 'generateDescription']);
+    });
+
+    // Endpoints de Stock (CRUD completo)
+    Route::prefix('stocks')->group(function () {
+        Route::get('/', [StockController::class, 'index']);
+        Route::post('/', [StockController::class, 'store']);
+        Route::get('/product/{productId}', [StockController::class, 'showByProduct']);
+        Route::get('/{id}', [StockController::class, 'show']);
+        Route::put('/{id}', [StockController::class, 'update']);
+        Route::patch('/{id}', [StockController::class, 'update']);
+        Route::delete('/{id}', [StockController::class, 'destroy']);
     });
 });
 

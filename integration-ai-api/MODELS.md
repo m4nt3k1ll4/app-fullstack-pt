@@ -10,10 +10,11 @@ Interfaces TypeScript que representan las estructuras de datos de la API. Usar c
 2. [Autenticación](#autenticación)
 3. [Usuario](#usuario)
 4. [Productos](#productos)
-5. [Inteligencia Artificial](#inteligencia-artificial)
-6. [Administración](#administración)
-7. [Paginación](#paginación)
-8. [Errores](#errores)
+5. [Stock](#stock)
+6. [Inteligencia Artificial](#inteligencia-artificial)
+7. [Administración](#administración)
+8. [Paginación](#paginación)
+9. [Errores](#errores)
 
 ---
 
@@ -248,6 +249,64 @@ interface AIUsage {
 
 ---
 
+## Stock
+
+```typescript
+// Modelo Stock (con relación al producto)
+interface Stock {
+  id: number;
+  product_id: number;
+  stock: number;                      // cantidad en stock
+  unit_value: string;                 // valor unitario de compra (decimal)
+  sale_value: string;                 // valor de venta (decimal)
+  total_stock: string;                // stock × unit_value (calculado automáticamente)
+  created_at: string;
+  updated_at: string;
+  product: Product;                   // relación incluida siempre
+}
+
+// POST /api/stocks — Body
+interface CreateStockRequest {
+  product_id: number;                 // requerido, debe existir, único por producto
+  stock: number;                      // requerido, entero, mín. 0
+  unit_value: number;                 // requerido, mín. 0, máx. 999999.99
+  sale_value: number;                 // requerido, mín. 0, máx. 999999.99
+}
+
+// PUT|PATCH /api/stocks/{id} — Body
+interface UpdateStockRequest {
+  stock?: number;                     // entero, mín. 0
+  unit_value?: number;                // mín. 0, máx. 999999.99
+  sale_value?: number;                // mín. 0, máx. 999999.99
+}
+
+// GET /api/stocks — Response 200
+interface StockListResponse {
+  success: true;
+  message: string;
+  data: Stock[];
+  meta: PaginationMeta;
+}
+
+// GET /api/stocks/{id} — Response 200
+// GET /api/stocks/product/{productId} — Response 200
+// POST /api/stocks — Response 201
+// PUT|PATCH /api/stocks/{id} — Response 200
+interface StockSingleResponse {
+  success: true;
+  message: string;
+  data: Stock;
+}
+
+// DELETE /api/stocks/{id} — Response 200
+interface StockDeleteResponse {
+  success: true;
+  message: string;
+}
+```
+
+---
+
 ## Administración
 
 ### Login / Logout Admin
@@ -435,7 +494,7 @@ interface GenericError {
 ```typescript
 interface Role {
   id: number;
-  name: "admin" | "client";
+  name: "admin" | "client" | "interviewer";
   created_at: string;
   updated_at: string;
 }
@@ -465,6 +524,12 @@ interface RoleWithPivot extends Role {
 | `DELETE` | `/api/products/{id}` | — | — |
 | `GET` | `/api/products/search/{term}` | — | `Product[]` + `{ total }` |
 | `POST` | `/api/products/{id}/generate-description` | — | `Product` |
+| `GET` | `/api/stocks` | — | `Stock[]` + `PaginationMeta` |
+| `GET` | `/api/stocks/{id}` | — | `Stock` |
+| `GET` | `/api/stocks/product/{productId}` | — | `Stock` |
+| `POST` | `/api/stocks` | `CreateStockRequest` | `Stock` |
+| `PUT\|PATCH` | `/api/stocks/{id}` | `UpdateStockRequest` | `Stock` |
+| `DELETE` | `/api/stocks/{id}` | — | — |
 | `POST` | `/api/admin/login` | `LoginRequest` | `{ user, token, token_type, expires_in }` |
 | `POST` | `/api/admin/logout` | — | — |
 | `GET` | `/api/admin/statistics` | — | `Statistics` |
@@ -479,4 +544,4 @@ interface RoleWithPivot extends Role {
 
 ---
 
-**Fecha de actualización:** 14 de febrero de 2026
+**Fecha de actualización:** 16 de febrero de 2026

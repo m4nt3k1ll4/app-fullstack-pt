@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Products extends Model
 {
@@ -19,4 +20,12 @@ class Products extends Model
         'price' => 'decimal:2',
         'images' => 'array',
     ];
+
+    /**
+     * El stock asociado a este producto
+     */
+    public function stock(): HasOne
+    {
+        return $this->hasOne(Stock::class, 'product_id');
+    }
 }

@@ -10,8 +10,9 @@ Documentación completa de todos los endpoints disponibles. Cada sección especi
 2. [Usuario Autenticado](#usuario-autenticado)
 3. [Inteligencia Artificial](#inteligencia-artificial)
 4. [Productos](#productos)
-5. [Administración](#administración)
-6. [Notas Importantes](#notas-importantes)
+5. [Stock](#stock)
+6. [Administración](#administración)
+7. [Notas Importantes](#notas-importantes)
 
 ---
 
@@ -533,7 +534,268 @@ Authorization: Bearer {tu_api_key}
 
 ---
 
-## 👨‍💼 Administración
+## � Stock
+
+> **Autenticación:** API Key (`X-API-Key` o `Authorization: Bearer sk_...`)
+
+### Listar Stocks
+
+```
+GET /api/stocks
+```
+
+**Query Parameters opcionales:**
+
+| Parámetro    | Tipo    | Descripción                    |
+|--------------|---------|--------------------------------|
+| `search`     | string  | Buscar por nombre del producto |
+| `product_id` | integer | Filtrar por ID de producto     |
+| `per_page`   | integer | Resultados por página (def: 15)|
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Stocks obtenidos exitosamente.",
+  "data": [
+    {
+      "id": 1,
+      "product_id": 1,
+      "stock": 50,
+      "unit_value": "1749.99",
+      "sale_value": "3499.99",
+      "total_stock": "87499.50",
+      "created_at": "2026-02-16T00:00:00.000000Z",
+      "updated_at": "2026-02-16T00:00:00.000000Z",
+      "product": {
+        "id": 1,
+        "name": "MacBook Pro 16\" M4 Max",
+        "features": "Chip M4 Max, 48GB RAM, 1TB SSD...",
+        "price": "3499.99",
+        "ai_description": null,
+        "images": ["https://..."],
+        "created_at": "2026-02-14T00:00:00.000000Z",
+        "updated_at": "2026-02-14T00:00:00.000000Z"
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 4,
+    "per_page": 15,
+    "total": 50
+  }
+}
+```
+
+### Ver Stock Específico
+
+```
+GET /api/stocks/{id}
+```
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Stock obtenido exitosamente.",
+  "data": {
+    "id": 1,
+    "product_id": 1,
+    "stock": 50,
+    "unit_value": "1749.99",
+    "sale_value": "3499.99",
+    "total_stock": "87499.50",
+    "created_at": "2026-02-16T00:00:00.000000Z",
+    "updated_at": "2026-02-16T00:00:00.000000Z",
+    "product": {
+      "id": 1,
+      "name": "MacBook Pro 16\" M4 Max",
+      "features": "...",
+      "price": "3499.99",
+      "ai_description": null,
+      "images": ["https://..."],
+      "created_at": "2026-02-14T00:00:00.000000Z",
+      "updated_at": "2026-02-14T00:00:00.000000Z"
+    }
+  }
+}
+```
+
+### Ver Stock por Producto
+
+```
+GET /api/stocks/product/{productId}
+```
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Stock del producto obtenido exitosamente.",
+  "data": {
+    "id": 1,
+    "product_id": 1,
+    "stock": 50,
+    "unit_value": "1749.99",
+    "sale_value": "3499.99",
+    "total_stock": "87499.50",
+    "created_at": "2026-02-16T00:00:00.000000Z",
+    "updated_at": "2026-02-16T00:00:00.000000Z",
+    "product": {
+      "id": 1,
+      "name": "MacBook Pro 16\" M4 Max",
+      "features": "...",
+      "price": "3499.99",
+      "ai_description": null,
+      "images": ["https://..."],
+      "created_at": "2026-02-14T00:00:00.000000Z",
+      "updated_at": "2026-02-14T00:00:00.000000Z"
+    }
+  }
+}
+```
+
+**Response (404) — Sin stock:**
+
+```json
+{
+  "success": false,
+  "message": "Este producto no tiene stock registrado.",
+  "error": "Stock no encontrado para el producto especificado."
+}
+```
+
+### Crear Stock
+
+```
+POST /api/stocks
+```
+
+**Body:**
+
+```json
+{
+  "product_id": 1,
+  "stock": 100,
+  "unit_value": 1500.00,
+  "sale_value": 2999.99
+}
+```
+
+| Campo        | Tipo    | Requerido | Descripción                        |
+|--------------|---------|-----------|-------------------------------------|
+| `product_id` | integer | ✅        | ID del producto (debe existir, único)|
+| `stock`      | integer | ✅        | Cantidad en stock (min: 0)          |
+| `unit_value` | number  | ✅        | Valor unitario de compra            |
+| `sale_value` | number  | ✅        | Valor de venta                      |
+
+> **Nota:** `total_stock` se calcula automáticamente como `stock × unit_value`.
+
+**Response (201):**
+
+```json
+{
+  "success": true,
+  "message": "Stock creado exitosamente.",
+  "data": {
+    "id": 51,
+    "product_id": 1,
+    "stock": 100,
+    "unit_value": "1500.00",
+    "sale_value": "2999.99",
+    "total_stock": "150000.00",
+    "created_at": "2026-02-16T00:00:00.000000Z",
+    "updated_at": "2026-02-16T00:00:00.000000Z",
+    "product": {
+      "id": 1,
+      "name": "MacBook Pro 16\" M4 Max",
+      "features": "...",
+      "price": "3499.99",
+      "ai_description": null,
+      "images": ["https://..."],
+      "created_at": "2026-02-14T00:00:00.000000Z",
+      "updated_at": "2026-02-14T00:00:00.000000Z"
+    }
+  }
+}
+```
+
+### Actualizar Stock
+
+```
+PUT /api/stocks/{id}
+PATCH /api/stocks/{id}
+```
+
+**Body (todos opcionales):**
+
+```json
+{
+  "stock": 75,
+  "unit_value": 1600.00,
+  "sale_value": 3199.99
+}
+```
+
+| Campo        | Tipo    | Requerido | Descripción                |
+|--------------|---------|-----------|----------------------------|
+| `stock`      | integer | ❌        | Nueva cantidad en stock    |
+| `unit_value` | number  | ❌        | Nuevo valor unitario       |
+| `sale_value` | number  | ❌        | Nuevo valor de venta       |
+
+> **Nota:** `total_stock` se recalcula automáticamente al actualizar.
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Stock actualizado exitosamente.",
+  "data": {
+    "id": 1,
+    "product_id": 1,
+    "stock": 75,
+    "unit_value": "1600.00",
+    "sale_value": "3199.99",
+    "total_stock": "120000.00",
+    "created_at": "2026-02-16T00:00:00.000000Z",
+    "updated_at": "2026-02-16T00:00:00.000000Z",
+    "product": {
+      "id": 1,
+      "name": "MacBook Pro 16\" M4 Max",
+      "features": "...",
+      "price": "3499.99",
+      "ai_description": null,
+      "images": ["https://..."],
+      "created_at": "2026-02-14T00:00:00.000000Z",
+      "updated_at": "2026-02-14T00:00:00.000000Z"
+    }
+  }
+}
+```
+
+### Eliminar Stock
+
+```
+DELETE /api/stocks/{id}
+```
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Stock eliminado exitosamente."
+}
+```
+
+---
+
+## �👨‍💼 Administración
 
 > **Nota:** Los endpoints administrativos usan **tokens Sanctum** (no API Keys). Los tokens expiran en **5 minutos**. Primero inicie sesión con `/api/admin/login` para obtener un token Bearer.
 
@@ -970,24 +1232,34 @@ La API usa **dos sistemas de autenticación** independientes:
 
 | Sistema | Uso | Expiración | Header |
 |---------|-----|------------|--------|
-| **API Key** | Clientes (productos, IA, perfil) | Sin expiración | `Authorization: Bearer {api_key}` o `X-API-Key: {api_key}` |
-| **Token Sanctum** | Administradores (gestión de usuarios) | **5 minutos** | `Authorization: Bearer {token}` |
+| **API Key** | Clientes (productos, IA, stock, perfil) | Sin expiración | `Authorization: Bearer {api_key}` o `X-API-Key: {api_key}` |
+| **Token Sanctum** | Administradores e Interviewers (gestión de usuarios) | **5 minutos** | `Authorization: Bearer {token}` |
 
 Las API Keys tienen formato `sk_...` y se generan al hacer login o al ser aprobado por un admin.
+
+### Roles del Sistema
+
+| Rol | Descripción | API Key | Token Sanctum | Acceso Admin |
+|-----|-------------|---------|---------------|--------------|
+| **client** | Cliente estándar | ✅ | ❌ | ❌ |
+| **interviewer** | Entrevistador con acceso completo | ✅ | ✅ | ✅ |
+| **admin** | Administrador del sistema | ✅ | ✅ | ✅ |
+
+> **Nota:** El rol `interviewer` tiene acceso completo a todo el sistema (endpoints de clientes + administración), ideal para pruebas y entrevistas técnicas.
 
 #### Flujo de Clientes
 1. `POST /api/auth/register` → Registro (pendiente aprobación)
 2. Admin aprueba el usuario
 3. `POST /api/auth/login` → Obtiene API Key (`sk_...`)
-4. Usa API Key en todos los endpoints de productos e IA
+4. Usa API Key en todos los endpoints de productos, stock e IA
 
-#### Flujo de Administradores
+#### Flujo de Administradores / Interviewers
 1. `POST /api/admin/login` → Obtiene token Sanctum (expira en 5 min)
 2. Usa token en todos los endpoints de `/api/admin/*`
 3. Si el token expira, hacer login de nuevo
 4. `POST /api/admin/logout` → Revoca el token manualmente
 
-> 💡 También se puede obtener el `admin_token` desde `/api/auth/login` si el usuario es admin, evitando un segundo login.
+> 💡 También se puede obtener el `admin_token` desde `/api/auth/login` si el usuario es admin o interviewer, evitando un segundo login.
 
 ### Content-Type
 

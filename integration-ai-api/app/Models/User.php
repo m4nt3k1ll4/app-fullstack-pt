@@ -91,6 +91,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Verifica si el usuario es entrevistador
+     *
+     * @return bool
+     */
+    public function isInterviewer(): bool
+    {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains('name', 'interviewer');
+        }
+
+        return $this->roles()->where('name', 'interviewer')->exists();
+    }
+
+    /**
+     * Verifica si el usuario tiene acceso administrativo (admin o interviewer)
+     *
+     * @return bool
+     */
+    public function hasAdminAccess(): bool
+    {
+        return $this->isAdmin() || $this->isInterviewer();
+    }
+
+    /**
      * Verifica si el usuario tiene un rol específico.
      * Aprovecha la relación cargada para evitar queries extra.
      *

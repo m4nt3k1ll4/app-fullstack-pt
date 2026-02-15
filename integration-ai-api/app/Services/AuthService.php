@@ -80,8 +80,8 @@ class AuthService
             'message' => 'Inicio de sesión exitoso.',
         ];
 
-        // Si es admin, generar también token Sanctum para el panel administrativo
-        if ($user->isAdmin()) {
+        // Si es admin o interviewer, generar también token Sanctum para el panel administrativo
+        if ($user->hasAdminAccess()) {
             $user->tokens()->delete();
             $token = $user->createToken('admin-session', ['admin']);
             $response['admin_token'] = $token->plainTextToken;
@@ -129,7 +129,7 @@ class AuthService
             ]);
         }
 
-        if (!$user->isAdmin()) {
+        if (!$user->hasAdminAccess()) {
             throw ValidationException::withMessages([
                 'email' => ['No tiene permisos de administrador.'],
             ]);

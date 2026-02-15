@@ -55,10 +55,10 @@ class ProductsController extends Controller
      * 
      * GET /api/products/{id}
      * 
-     * @param string $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         try {
             $product = $this->productService->findById($id);
@@ -112,10 +112,10 @@ class ProductsController extends Controller
      * PUT/PATCH /api/products/{id}
      * 
      * @param UpdateProductRequest $request
-     * @param string $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateProductRequest $request, string $id): JsonResponse
+    public function update(UpdateProductRequest $request, int $id): JsonResponse
     {
         try {
             $product = $this->productService->update($id, $request->validated());
@@ -140,10 +140,10 @@ class ProductsController extends Controller
      * 
      * DELETE /api/products/{id}
      * 
-     * @param string $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
         try {
             $this->productService->delete($id);
@@ -198,11 +198,11 @@ class ProductsController extends Controller
      * 
      * POST /api/products/{id}/generate-description
      * 
-     * @param string $id
+     * @param int $id
      * @param AIService $aiService
      * @return JsonResponse
      */
-    public function generateDescription(string $id, AIService $aiService): JsonResponse
+    public function generateDescription(int $id, AIService $aiService): JsonResponse
     {
         try {
             $product = $this->productService->generateAIDescription($id, $aiService);

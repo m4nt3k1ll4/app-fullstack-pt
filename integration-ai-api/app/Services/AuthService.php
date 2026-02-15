@@ -74,11 +74,21 @@ class AuthService
         // Generar nueva API Key (siempre se regenera al hacer login)
         $apiKey = ApiKeyHelper::assignNewKey($user, $this->apiKeyService);
 
-        return [
+        $response = [
             'user' => $user->only(['id', 'name', 'email']),
             'api_key' => $apiKey,
             'message' => 'Inicio de sesión exitoso.',
         ];
+
+        // Si es admin, generar también token Sanctum para el panel administrativo
+        if ($user->isAdmin()) {
+            $user->tokens()->delete();
+            $token = $user->createToken('admin-session', ['admin']);
+            $response['admin_token'] = $token->plainTextToken;
+            $response['admin_token_expires_in'] = (int) config('sanctum.expiration', 5);
+        }
+
+        return $response;
     }
 
     /**

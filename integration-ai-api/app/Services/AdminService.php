@@ -6,7 +6,6 @@ use App\Helpers\ApiKeyHelper;
 use App\Helpers\QueryHelper;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class AdminService
 {
@@ -22,7 +21,7 @@ class AdminService
      */
     public function getAllUsers(array $filters = []): LengthAwarePaginator
     {
-        $query = User::query()->latest();
+        $query = User::with('roles')->latest();
 
         if (isset($filters['is_approved'])) {
             $query->where('is_approved', filter_var($filters['is_approved'], FILTER_VALIDATE_BOOLEAN));
@@ -40,11 +39,13 @@ class AdminService
      *
      * @return Collection
      */
-    public function getPendingUsers(): Collection
+    public function getPendingUsers(array $filters = []): LengthAwarePaginator
     {
-        return User::where('is_approved', false)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = User::with('roles')
+            ->where('is_approved', false)
+            ->latest();
+
+        return QueryHelper::paginate($query, $filters, 15);
     }
 
     /**
@@ -55,7 +56,7 @@ class AdminService
      */
     public function findUser(int $userId): User
     {
-        return User::findOrFail($userId);
+        return User::with('roles')->findOrFail($userId);
     }
 
     /**
@@ -135,11 +136,19 @@ class AdminService
      */
     public function getStatistics(): array
     {
+        // Una sola query con conteos condicionales en vez de 4 queries separadas
+        $stats = User::query()->selectRaw("
+            COUNT(*) as total_users,
+            SUM(CASE WHEN is_approved = true THEN 1 ELSE 0 END) as approved_users,
+            SUM(CASE WHEN is_approved = false THEN 1 ELSE 0 END) as pending_users,
+            SUM(CASE WHEN api_key IS NOT NULL THEN 1 ELSE 0 END) as users_with_api_key
+        ")->first();
+
         return [
-            'total_users' => User::count(),
-            'approved_users' => User::where('is_approved', true)->count(),
-            'pending_users' => User::where('is_approved', false)->count(),
-            'users_with_api_key' => User::whereNotNull('api_key')->count(),
+            'total_users' => (int) $stats->total_users,
+            'approved_users' => (int) $stats->approved_users,
+            'pending_users' => (int) $stats->pending_users,
+            'users_with_api_key' => (int) $stats->users_with_api_key,
         ];
     }
 
@@ -159,12 +168,12 @@ class AdminService
         }
 
         if (isset($data['email'])) {
-            // Verificar que el email no esté en uso por otro usuario
-            $existingUser = User::where('email', $data['email'])
+            // exists() es más eficiente que first() — no carga el modelo completo
+            $emailTaken = User::where('email', $data['email'])
                 ->where('id', '!=', $userId)
-                ->first();
+                ->exists();
 
-            if ($existingUser) {
+            if ($emailTaken) {
                 throw new \Exception('El email ya está en uso por otro usuario.');
             }
 

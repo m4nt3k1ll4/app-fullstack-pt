@@ -72,22 +72,4 @@ class AIService
             return ServiceResponse::error($e->getMessage());
         }
     }
-
-    /**
-     * Procesa múltiples prompts en lote
-     *
-     * @param array $prompts
-     * @param array $options
-     * @return array
-     */
-    public function processBatch(array $prompts, array $options = []): array
-    {
-        $results = [];
-
-        foreach ($prompts as $index => $prompt) {
-            $results[$index] = $this->processPrompt($prompt, $options);
-        }
-
-        return $results;
-    }
 }

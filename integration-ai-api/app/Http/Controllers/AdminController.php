@@ -125,17 +125,21 @@ class AdminController extends Controller
      *
      * @return JsonResponse
      */
-    public function pending(): JsonResponse
+    public function pending(Request $request): JsonResponse
     {
         try {
-            $users = $this->adminService->getPendingUsers();
+            $filters = $request->only(['per_page']);
+            $users = $this->adminService->getPendingUsers($filters);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Usuarios pendientes obtenidos exitosamente.',
-                'data' => $users,
+                'data' => $users->items(),
                 'meta' => [
-                    'total' => $users->count(),
+                    'current_page' => $users->currentPage(),
+                    'last_page' => $users->lastPage(),
+                    'per_page' => $users->perPage(),
+                    'total' => $users->total(),
                 ],
             ], 200);
 

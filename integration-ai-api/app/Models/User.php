@@ -61,12 +61,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Verifica si el usuario es administrador
+     * Verifica si el usuario es administrador.
+     * Usa la colección cargada si los roles ya fueron eager-loaded,
+     * evitando queries adicionales (N+1).
      *
      * @return bool
      */
     public function isAdmin(): bool
     {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains('name', 'admin');
+        }
+
         return $this->roles()->where('name', 'admin')->exists();
     }
 
@@ -77,17 +83,26 @@ class User extends Authenticatable
      */
     public function isClient(): bool
     {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains('name', 'client');
+        }
+
         return $this->roles()->where('name', 'client')->exists();
     }
 
     /**
-     * Verifica si el usuario tiene un rol específico
+     * Verifica si el usuario tiene un rol específico.
+     * Aprovecha la relación cargada para evitar queries extra.
      *
      * @param string $roleName
      * @return bool
      */
     public function hasRole(string $roleName): bool
     {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains('name', $roleName);
+        }
+
         return $this->roles()->where('name', $roleName)->exists();
     }
 

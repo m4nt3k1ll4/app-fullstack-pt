@@ -32,10 +32,10 @@ class ProductService
     /**
      * Busca un producto por ID
      *
-     * @param string $id
+     * @param int $id
      * @return Products
      */
-    public function findById(string $id): Products
+    public function findById(int $id): Products
     {
         return Products::findOrFail($id);
     }
@@ -53,17 +53,18 @@ class ProductService
             'features' => $data['features'] ?? null,
             'price' => $data['price'] ?? null,
             'ai_description' => $data['ai_description'] ?? null,
+            'images' => $data['images'] ?? null,
         ]);
     }
 
     /**
      * Actualiza un producto existente
      *
-     * @param string $id
+     * @param int $id
      * @param array $data
      * @return Products
      */
-    public function update(string $id, array $data): Products
+    public function update(int $id, array $data): Products
     {
         $product = $this->findById($id);
 
@@ -72,6 +73,7 @@ class ProductService
             'features' => $data['features'] ?? $product->features,
             'price' => $data['price'] ?? $product->price,
             'ai_description' => $data['ai_description'] ?? $product->ai_description,
+            'images' => $data['images'] ?? $product->images,
         ]);
 
         return $product->fresh();
@@ -80,10 +82,10 @@ class ProductService
     /**
      * Elimina un producto
      *
-     * @param string $id
+     * @param int $id
      * @return bool
      */
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         $product = $this->findById($id);
         return $product->delete();
@@ -92,11 +94,11 @@ class ProductService
     /**
      * Genera descripción con IA para un producto
      *
-     * @param string $id
+     * @param int $id
      * @param AIService $aiService
      * @return Products
      */
-    public function generateAIDescription(string $id, AIService $aiService): Products
+    public function generateAIDescription(int $id, AIService $aiService): Products
     {
         $product = $this->findById($id);
 
@@ -141,7 +143,7 @@ class ProductService
      */
     public function search(string $term): Collection
     {
-        $query = Products::query();
+        $query = Products::query()->latest();
         QueryHelper::applySearch($query, $term, ['name', 'features', 'ai_description']);
 
         return $query->get();

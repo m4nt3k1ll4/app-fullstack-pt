@@ -32,7 +32,6 @@ Route::middleware('api.key')->group(function () {
     // Endpoints de IA
     Route::prefix('ai')->group(function () {
         Route::post('/prompt', [AIController::class, 'processPrompt']);
-        Route::post('/batch', [AIController::class, 'processBatch']);
     });
 
     // Endpoints de Productos (CRUD completo)

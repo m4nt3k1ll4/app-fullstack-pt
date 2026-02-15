@@ -53,13 +53,22 @@ class AuthController extends Controller
         try {
             $result = $this->authService->login($request->validated());
 
+            $data = [
+                    'user' => $result['user'],
+                    'api_key' => $result['api_key'],
+                ];
+
+            // Si es admin, incluir token Sanctum en la respuesta
+            if (isset($result['admin_token'])) {
+                $data['admin_token'] = $result['admin_token'];
+                $data['admin_token_type'] = 'Bearer';
+                $data['admin_token_expires_in'] = $result['admin_token_expires_in'] . ' minutos';
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => $result['message'],
-                'data' => [
-                    'user' => $result['user'],
-                    'api_key' => $result['api_key'],
-                ],
+                'data' => $data,
             ], 200);
 
         } catch (ValidationException $e) {

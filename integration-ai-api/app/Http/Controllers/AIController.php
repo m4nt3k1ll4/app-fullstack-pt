@@ -61,44 +61,6 @@ class AIController extends Controller
     }
 
     /**
-     * Procesa múltiples prompts en lote
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function processBatch(Request $request): JsonResponse
-    {
-        try {
-            $request->validate([
-                'prompts' => 'required|array|min:1|max:10',
-                'prompts.*' => 'required|string|max:4000',
-                'model' => 'nullable|string|in:gemini-1.5-pro,gemini-1.5-flash',
-            ]);
-
-            $options = [
-                'model' => $request->input('model', 'gemini-2.5-flash'),
-            ];
-
-            $results = $this->aiService->processBatch($request->input('prompts'), $options);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Prompts procesados exitosamente.',
-                'data' => [
-                    'results' => $results,
-                ],
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al procesar los prompts.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
      * Obtiene información del usuario autenticado
      *
      * @param Request $request

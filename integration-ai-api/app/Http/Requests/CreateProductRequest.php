@@ -24,6 +24,8 @@ class CreateProductRequest extends FormRequest
             'features' => 'nullable|string|max:500',
             'price' => 'nullable|numeric|min:0|max:999999.99',
             'ai_description' => 'nullable|string',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'required|url|max:2048',
         ];
     }
 
@@ -39,6 +41,10 @@ class CreateProductRequest extends FormRequest
             'price.numeric' => 'El precio debe ser un número válido.',
             'price.min' => 'El precio debe ser mayor o igual a 0.',
             'price.max' => 'El precio no puede exceder 999,999.99.',
+            'images.array' => 'Las imágenes deben ser un array de URLs.',
+            'images.max' => 'No se permiten más de 5 imágenes.',
+            'images.*.url' => 'Cada imagen debe ser una URL válida.',
+            'images.*.max' => 'Cada URL de imagen no puede exceder 2048 caracteres.',
         ];
     }
 }

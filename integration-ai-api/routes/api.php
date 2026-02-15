@@ -88,18 +88,18 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'is.admin'])->group(function
         Route::get('/{id}', [AdminController::class, 'show']);
         Route::put('/{id}', [AdminController::class, 'update']);
         Route::patch('/{id}', [AdminController::class, 'update']);
-
-    // Gestión de Ventas/Compras (Admin)
-    Route::prefix('purchases')->group(function () {
-        Route::get('/', [PurchaseController::class, 'index']);
-        Route::get('/{id}', [PurchaseController::class, 'show']);
-    });
         Route::delete('/{id}', [AdminController::class, 'destroy']);
 
         // Acciones específicas
         Route::post('/{id}/approve', [AdminController::class, 'approve']);
         Route::post('/{id}/revoke', [AdminController::class, 'revoke']);
         Route::post('/{id}/regenerate-key', [AdminController::class, 'regenerateKey']);
+    });
+
+    // Gestión de Ventas/Compras (Admin)
+    Route::prefix('purchases')->group(function () {
+        Route::get('/', [PurchaseController::class, 'index']);
+        Route::get('/{id}', [PurchaseController::class, 'show']);
     });
 });
 

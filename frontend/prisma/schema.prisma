@@ -59,10 +59,42 @@ model User {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  accounts Account[]
-  sessions Session[]
+  accounts  Account[]
+  sessions  Session[]
+  purchases Purchase[]
 
   @@map("users")
+  @@schema("public")
+}
+
+model Purchase {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  total     Decimal  @db.Decimal(10, 2)
+  status    String   @default("pending") // pending, completed, cancelled
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items PurchaseItem[]
+
+  @@map("purchases")
+  @@schema("public")
+}
+
+model PurchaseItem {
+  id         String   @id @default(cuid())
+  purchaseId String   @map("purchase_id")
+  productId  Int      @map("product_id") // ID del producto en el backend de Laravel
+  quantity   Int
+  unitPrice  Decimal  @map("unit_price") @db.Decimal(10, 2)
+  subtotal   Decimal  @db.Decimal(10, 2)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  @@map("purchase_items")
   @@schema("public")
 }
 

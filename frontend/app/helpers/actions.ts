@@ -2,6 +2,7 @@
 
 import { signIn, signOut, auth } from "@/app/auth";
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/prisma";
 import {
   createProduct as apiCreateProduct,
   updateProduct as apiUpdateProduct,
@@ -238,24 +239,135 @@ export async function createPurchaseAction(
 
   try {
     const session = await auth();
-    if (!session?.user?.email) {
+    if (!session?.user?.email || !session?.user?.id) {
       return { success: false, message: "Debes iniciar sesión para realizar una compra." };
     }
 
     const userEmail = session.user.email;
     const userName = session.user.name || userEmail.split("@")[0];
+    const userId = session.user.id;
 
+    // 1. Registrar compra en el backend de Laravel (manejo de inventario y stock)
     const res = await apiCreatePurchase(userEmail, userName, items);
 
-    if (!res.success) {
+    if (!res.success || !res.data) {
       return { success: false, message: res.error || res.message || "Error al realizar la compra." };
     }
+
+    // 2. Registrar compra en la base de datos del frontend (Prisma) para historial del usuario
+    const backendPurchase = res.data;
+    
+    // Calcular total
+    const total = backendPurchase.items?.reduce(
+      (sum, item) => sum + Number(item.subtotal),
+      0
+    ) || backendPurchase.total ? Number(backendPurchase.total) : 0;
+
+    // Guardar en Prisma
+    await prisma.purchase.create({
+      data: {
+        userId: userId,
+        total: total,
+        status: backendPurchase.status || "pending",
+        items: {
+          create: items.map((item) => {
+            const backendItem = backendPurchase.items?.find((bi) => bi.product_id === item.product_id);
+            return {
+              productId: item.product_id,
+              quantity: item.quantity,
+              unitPrice: backendItem ? Number(backendItem.unit_price) : 0,
+              subtotal: backendItem ? Number(backendItem.subtotal) : 0,
+            };
+          }),
+        },
+      },
+    });
 
     revalidatePath("/dashboard/mis-compras");
     revalidatePath("/dashboard/catalogo");
     return { success: true, message: res.message || "Compra realizada exitosamente." };
   } catch (e) {
+    console.error("Error en createPurchaseAction:", e);
     return { success: false, message: e instanceof Error ? e.message : "Error al realizar la compra." };
+  }
+}
+
+/**
+ * Fetch user's purchases from Prisma database
+ */
+export async function fetchMyPurchasesAction(
+  userId: string,
+  options: { page?: number; per_page?: number } = {}
+) {
+  try {
+    const page = options.page || 1;
+    const perPage = options.per_page || 10;
+    const skip = (page - 1) * perPage;
+
+    const [purchases, total] = await Promise.all([
+      prisma.purchase.findMany({
+        where: { userId },
+        include: {
+          items: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: perPage,
+      }),
+      prisma.purchase.count({ where: { userId } })
+    ]);
+
+    const lastPage = Math.ceil(total / perPage);
+
+    // Map Prisma data to frontend Purchase interface format
+    const mappedPurchases = purchases.map(p => ({
+      id: parseInt(p.id) || 0, // Convert string UUID to number (or use hash if needed)
+      user_id: 0, // Not needed for user's own purchases
+      total: p.total.toString(),
+      status: p.status as "pending" | "completed" | "cancelled",
+      created_at: p.createdAt.toISOString(),
+      updated_at: p.updatedAt.toISOString(),
+      items: p.items.map(item => ({
+        id: parseInt(item.id) || 0,
+        purchase_id: parseInt(p.id) || 0,
+        product_id: item.productId,
+        quantity: item.quantity,
+        unit_price: item.unitPrice.toString(),
+        subtotal: item.subtotal.toString(),
+      })),
+      user: p.user ? {
+        id: 0,
+        name: p.user.name || '',
+        email: p.user.email || '',
+      } : undefined,
+    }));
+
+    return {
+      data: mappedPurchases,
+      meta: {
+        current_page: page,
+        last_page: lastPage,
+        per_page: perPage,
+        total,
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching purchases from Prisma:', error);
+    return {
+      data: [],
+      meta: {
+        current_page: 1,
+        last_page: 1,
+        per_page: options.per_page || 10,
+        total: 0,
+      }
+    };
   }
 }
 

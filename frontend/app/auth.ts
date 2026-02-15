@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/app/helpers/db";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { apiLogin } from "@/app/helpers/api";
 

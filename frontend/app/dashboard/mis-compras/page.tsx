@@ -1,7 +1,7 @@
 import { bebasNeue } from "@/app/ui/fonts";
 import { MyPurchasesList } from "@/app/components/MyPurchasesList";
 import { Pagination } from "@/app/components/Pagination";
-import { fetchMyPurchases } from "@/app/helpers/api";
+import { fetchMyPurchasesAction } from "@/app/helpers/actions";
 import { auth } from "@/app/auth";
 import { redirect } from "next/navigation";
 
@@ -11,16 +11,16 @@ export default async function MisComprasPage(props: {
   }>;
 }) {
   const session = await auth();
-  const userEmail = session?.user?.email;
+  const userId = session?.user?.id;
 
-  if (!userEmail) {
+  if (!userId) {
     redirect("/login");
   }
 
   const searchParams = await props.searchParams;
   const currentPage = Number(searchParams?.page) || 1;
 
-  const res = await fetchMyPurchases(userEmail, {
+  const res = await fetchMyPurchasesAction(userId, {
     page: currentPage,
     per_page: 10,
   });

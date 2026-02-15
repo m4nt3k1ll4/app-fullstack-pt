@@ -13,6 +13,12 @@ import {
   adminRegenerateKey,
   adminUpdateUser,
   createPurchase as apiCreatePurchase,
+  createStock as apiCreateStock,
+  updateStock as apiUpdateStock,
+  deleteStock as apiDeleteStock,
+  fetchAllStocks as apiFetchAllStocks,
+  fetchProducts as apiFetchProducts,
+  fetchStockByProduct as apiFetchStockByProduct,
 } from "@/app/helpers/api";
 
 // ============================================================
@@ -250,5 +256,141 @@ export async function createPurchaseAction(
     return { success: true, message: res.message || "Compra realizada exitosamente." };
   } catch (e) {
     return { success: false, message: e instanceof Error ? e.message : "Error al realizar la compra." };
+  }
+}
+
+// ============================================================
+// Stock actions
+// ============================================================
+
+export async function createStockAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  try {
+    const product_id = Number(formData.get("product_id"));
+    const stock = Number(formData.get("stock"));
+    const unit_value = Number(formData.get("unit_value"));
+    const sale_value = Number(formData.get("sale_value"));
+
+    if (!product_id || isNaN(stock) || isNaN(unit_value) || isNaN(sale_value)) {
+      return { success: false, message: "Datos inválidos." };
+    }
+
+    const res = await apiCreateStock({ product_id, stock, unit_value, sale_value });
+
+    if (!res.success) {
+      return {
+        success: false,
+        message: res.error || res.message || "Error al crear stock.",
+        errors: res.errors,
+      };
+    }
+
+    revalidatePath("/dashboard/admin/stock");
+    return { success: true, message: res.message || "Stock creado exitosamente." };
+  } catch (e) {
+    return { success: false, message: e instanceof Error ? e.message : "Error al crear stock." };
+  }
+}
+
+export async function updateStockAction(
+  id: number,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  try {
+    const data: { stock?: number; unit_value?: number; sale_value?: number } = {};
+
+    const stock = formData.get("stock");
+    const unit_value = formData.get("unit_value");
+    const sale_value = formData.get("sale_value");
+
+    if (stock) data.stock = Number(stock);
+    if (unit_value) data.unit_value = Number(unit_value);
+    if (sale_value) data.sale_value = Number(sale_value);
+
+    if (Object.keys(data).length === 0) {
+      return { success: false, message: "No hay datos para actualizar." };
+    }
+
+    const res = await apiUpdateStock(id, data);
+
+    if (!res.success) {
+      return {
+        success: false,
+        message: res.error || res.message || "Error al actualizar stock.",
+        errors: res.errors,
+      };
+    }
+
+    revalidatePath("/dashboard/admin/stock");
+    return { success: true, message: res.message || "Stock actualizado exitosamente." };
+  } catch (e) {
+    return { success: false, message: e instanceof Error ? e.message : "Error al actualizar stock." };
+  }
+}
+
+export async function deleteStockAction(id: number): Promise<ActionState> {
+  try {
+    const res = await apiDeleteStock(id);
+    if (!res.success) {
+      return { success: false, message: res.error || res.message || "Error al eliminar stock." };
+    }
+    revalidatePath("/dashboard/admin/stock");
+    return { success: true, message: res.message || "Stock eliminado exitosamente." };
+  } catch (e) {
+    return { success: false, message: e instanceof Error ? e.message : "Error al eliminar stock." };
+  }
+}
+
+// ============================================================
+// Stock fetch actions (server-side data loading)
+// ============================================================
+
+export async function fetchStocksAction(params?: {
+  search?: string;
+  page?: number;
+  per_page?: number;
+}) {
+  try {
+    const res = await apiFetchAllStocks(params);
+    return res;
+  } catch (e) {
+    return {
+      success: false,
+      message: e instanceof Error ? e.message : "Error al cargar stocks.",
+      data: [],
+    };
+  }
+}
+
+export async function fetchProductsAction(params?: {
+  search?: string;
+  page?: number;
+  per_page?: number;
+}) {
+  try {
+    const res = await apiFetchProducts(params);
+    return res;
+  } catch (e) {
+    return {
+      success: false,
+      message: e instanceof Error ? e.message : "Error al cargar productos.",
+      data: [],
+    };
+  }
+}
+
+export async function fetchStockByProductAction(productId: number) {
+  try {
+    const res = await apiFetchStockByProduct(productId);
+    return res;
+  } catch (e) {
+    return {
+      success: false,
+      message: e instanceof Error ? e.message : "Error al verificar stock.",
+      data: null,
+    };
   }
 }

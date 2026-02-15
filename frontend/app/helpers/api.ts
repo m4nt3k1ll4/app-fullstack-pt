@@ -249,6 +249,57 @@ export async function fetchStockByProduct(productId: number) {
   return apiFetch<Stock>(`/api/stocks/product/${productId}`, { apiKey: API_KEY });
 }
 
+export async function fetchAllStocks(
+  params?: {
+    search?: string;
+    per_page?: number;
+    page?: number;
+  }
+) {
+  const query = new URLSearchParams();
+  if (params?.search) query.set("search", params.search);
+  if (params?.per_page) query.set("per_page", String(params.per_page));
+  if (params?.page) query.set("page", String(params.page));
+
+  const qs = query.toString();
+  return apiFetch<Stock[]>(`/api/stocks${qs ? `?${qs}` : ""}`, { apiKey: API_KEY });
+}
+
+export async function createStock(data: {
+  product_id: number;
+  stock: number;
+  unit_value: number;
+  sale_value: number;
+}) {
+  return apiFetch<Stock>("/api/stocks", {
+    method: "POST",
+    apiKey: API_KEY,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateStock(
+  id: number,
+  data: {
+    stock?: number;
+    unit_value?: number;
+    sale_value?: number;
+  }
+) {
+  return apiFetch<Stock>(`/api/stocks/${id}`, {
+    method: "PUT",
+    apiKey: API_KEY,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteStock(id: number) {
+  return apiFetch<null>(`/api/stocks/${id}`, {
+    method: "DELETE",
+    apiKey: API_KEY,
+  });
+}
+
 // ============================================================
 // Purchase endpoints (cliente — usan API_KEY global y pasan user_email)
 // ============================================================

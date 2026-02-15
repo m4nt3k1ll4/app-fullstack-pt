@@ -12,11 +12,13 @@ import {
   FiShoppingBag,
   FiShoppingCart,
   FiDollarSign,
+  FiPackage,
 } from "react-icons/fi";
 
 const adminLinks = [
   { name: "Dashboard", href: "/dashboard", icon: FiHome },
   { name: "Productos", href: "/dashboard/products", icon: FiBox },
+  { name: "Inventario", href: "/dashboard/admin/stock", icon: FiPackage },
   { name: "Usuarios", href: "/dashboard/admin/users", icon: FiUsers },
   { name: "Pendientes", href: "/dashboard/admin/users/pending", icon: FiUserCheck },
   { name: "Ventas", href: "/dashboard/admin/ventas", icon: FiDollarSign },

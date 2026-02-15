@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { Product, Stock } from "@/app/types";
 import { formatCurrency } from "@/app/helpers/utils";
-import { fetchStockByProduct } from "@/app/helpers/api";
+import { fetchStockByProductAction } from "@/app/helpers/actions";
 import { useCart } from "@/app/components/CartContext";
 import Image from "next/image";
 import { FiX, FiChevronLeft, FiChevronRight, FiBox, FiZap, FiShoppingCart, FiMinus, FiPlus } from "react-icons/fi";
@@ -28,7 +28,7 @@ export function ProductModal({
   // Fetch stock info
   useEffect(() => {
     setStockLoading(true);
-    fetchStockByProduct(product.id)
+    fetchStockByProductAction(product.id)
       .then((res) => {
         if (res.success && res.data) {
           setStock(res.data);

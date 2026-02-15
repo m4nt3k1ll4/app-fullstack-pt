@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "sonner";
 import { inter } from "@/app/ui/fonts";
 import "./globals.css";
 
@@ -17,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <Toaster position="top-right" richColors />
+        </SessionProvider>
       </body>
     </html>
   );
